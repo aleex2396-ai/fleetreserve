@@ -1,0 +1,20 @@
+{
+ "about": "Settings of the tuned neural hazard departure model (models.hazard_tuned), written by fleetreserve.hazard_tune_settings from the results of a recorded fleetreserve.hazard_tune run on the training sites. Not edited by hand.",
+ "grid": {
+  "file": "hazard-grid.json",
+  "sha256": "c753defb601b05ca07c05a0909d162a5cb79a5ee2a84df77e54d047799c984e7"
+ },
+ "results": {
+  "commit": "f862a0af389d8411fb6b2d824005aebc82bcb1c9",
+  "file": "hazard-tune.json",
+  "run_folder": "20261113T160616Z-wp8-hazard-tune",
+  "sha256": "2713d84158c9db9b75ec561ca3110b275f0d2ea3a96f9c97b0b61786dd465039"
+ },
+ "score": 5.037007626123659,
+ "settings": {
+  "epochs": 10,
+  "kl_weight": 1.0,
+  "learning_rate": 0.001,
+  "width": 64
+ }
+}

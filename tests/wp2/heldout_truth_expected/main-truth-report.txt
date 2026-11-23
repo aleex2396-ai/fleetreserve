@@ -1,0 +1,75 @@
+FINDINGS (checks that contradict an assumption of the plan; any reason that removes more than 5% of a site's rows, the plan's own removal of fast-charger sessions included; units abstaining; window searches that cycle or read test days)
+- asr asr: 20.0% of rows removed as 'energy missing or not positive'
+- korea-lodging: no tables, the unit abstains: no calibration day at τ 17:00 (0 counting days)
+- korea-visits: no tables, the unit abstains: no calibration day at the start draw
+
+KOREA FAST CHARGERS: 3 rows removed as 'fast charger (ChargerType 1)' at the opening (plan 3)
+
+WINDOWS
+- asr-before-march-2023: τ 08:00, S 09:00 to 12:00 (3 hours)
+- asr-from-march-2023: τ 08:00, S 09:00 to 12:00 (3 hours)
+- OSL_T: τ 16:00, S 17:00 to 23:00 (6 hours); median peak 6.0 cars at 17:00 over 15 calibration days (seed 1; search τ [16, 16]; days read 15, test days read 0); earliest-peak reading τ 16:00 would give 30 counting days
+- TRO_R: τ 16:00, S 17:00 to 23:00 (6 hours); median peak 6.0 cars at 17:00 over 3 calibration days (seed 1; search τ [16, 16]; days read 3, test days read 0); earliest-peak reading τ 16:00 would give 6 counting days
+- korea-home: τ 22:00, S 23:00 to 07:00 (8 hours); median peak 5.0 cars at 23:00 over 5 calibration days (seed 1; search τ [22, 22]; days read 5, test days read 0); earliest-peak reading τ 23:00 would give 10 counting days
+- korea-work: τ 08:00, S 09:00 to 17:00 (8 hours); median peak 5.0 cars at 09:00 over 3 calibration days (seed 1; search τ [8, 8]; days read 3, test days read 0); earliest-peak reading τ 08:00 would give 6 counting days
+- korea-public-parking: τ 09:00, S 10:00 to 15:00 (5 hours); median peak 4.0 cars at 10:00 over 2 calibration days (seed 1; search τ [9, 9]; days read 2, test days read 0); earliest-peak reading τ 09:00 would give 4 counting days
+
+UNITS
+- asr-before-march-2023 (held-out): sessions 8, removed {'energy missing or not positive': 2}, days 2, counting days 2, cars per counting day median 3.0 (p10 3.0, p90 3.0), in-window departure 0.0, zero room 0.0, room not fitting 0.0, depart hour 0 0.0
+  fallback shares {'rate_nominal_cap_no_user_id': 0.0, 'sessions_missing_user_id': 0.0, 'nominal_cap_floor_max_charge_power_missing': 0.0, 'energy_before_no_charging_time': 0.0, 'rate_average_without_charging_time': 1.0}
+  cars changed by other readings {'cars_on_counting_days': 6, 'rate_history_ended_before_tau': 4, 'rate_average_over_plug_in_to_plug_out': 0, 'energy_before_charge_bound_switched': 0, 'energy_before_at_rate_not_nominal_cap': 6}
+- asr-from-march-2023 (held-out): sessions 8, removed {'energy missing or not positive': 2}, days 2, counting days 2, cars per counting day median 3.0 (p10 3.0, p90 3.0), in-window departure 0.0, zero room 0.0, room not fitting 0.0, depart hour 0 0.0
+  fallback shares {'rate_nominal_cap_no_user_id': 0.0, 'sessions_missing_user_id': 0.0, 'nominal_cap_floor_max_charge_power_missing': 0.0, 'energy_before_no_charging_time': 0.0, 'rate_average_without_charging_time': 1.0}
+  cars changed by other readings {'cars_on_counting_days': 6, 'rate_history_ended_before_tau': 2, 'rate_average_over_plug_in_to_plug_out': 0, 'energy_before_charge_bound_switched': 0, 'energy_before_at_rate_not_nominal_cap': 6}
+- OSL_T (held-out): sessions 180, removed none, days 30, counting days 30, cars per counting day median 4.0 (p10 4.0, p90 4.0), in-window departure 1.0, zero room 0.0, room not fitting 0.0, depart hour 0 0.0
+  fallback shares {'rate_nominal_cap_no_user_id': 0.0, 'sessions_missing_user_id': 0.0, 'nominal_cap_floor_max_charge_power_missing': 0.0, 'energy_before_no_charging_time': 0.0, 'rate_average_without_charging_time': 1.0}
+  cars changed by other readings {'cars_on_counting_days': 120, 'rate_history_ended_before_tau': 4, 'rate_average_over_plug_in_to_plug_out': 0, 'energy_before_charge_bound_switched': 0, 'energy_before_at_rate_not_nominal_cap': 120}
+- TRO_R (held-out): sessions 36, removed none, days 6, counting days 6, cars per counting day median 4.0 (p10 4.0, p90 4.0), in-window departure 1.0, zero room 0.0, room not fitting 0.0, depart hour 0 0.0
+  fallback shares {'rate_nominal_cap_no_user_id': 0.0, 'sessions_missing_user_id': 0.0, 'nominal_cap_floor_max_charge_power_missing': 0.0, 'energy_before_no_charging_time': 0.0, 'rate_average_without_charging_time': 1.0}
+  cars changed by other readings {'cars_on_counting_days': 24, 'rate_history_ended_before_tau': 4, 'rate_average_over_plug_in_to_plug_out': 0, 'energy_before_charge_bound_switched': 0, 'energy_before_at_rate_not_nominal_cap': 24}
+- korea-home (held-out): sessions 50, removed {'fast charger (ChargerType 1)': 2}, days 10, counting days 10, cars per counting day median 4.0 (p10 4.0, p90 4.0), in-window departure 0.0, zero room 0.0, room not fitting 0.0, depart hour 0 0.0
+  fallback shares {'rate_nominal_cap_no_user_id': 0.0, 'sessions_missing_user_id': 0.0, 'nominal_cap_floor_max_charge_power_missing': 0.0, 'energy_before_no_charging_time': 0.0, 'rate_average_without_charging_time': 1.0}
+  cars changed by other readings {'cars_on_counting_days': 40, 'rate_history_ended_before_tau': 4, 'rate_average_over_plug_in_to_plug_out': 0, 'energy_before_charge_bound_switched': 0, 'energy_before_at_rate_not_nominal_cap': 40}
+- korea-work (held-out): sessions 30, removed {'fast charger (ChargerType 1)': 1}, days 6, counting days 6, cars per counting day median 3.0 (p10 3.0, p90 3.0), in-window departure 0.0, zero room 0.0, room not fitting 0.0, depart hour 0 0.0
+  fallback shares {'rate_nominal_cap_no_user_id': 0.0, 'sessions_missing_user_id': 0.0, 'nominal_cap_floor_max_charge_power_missing': 0.0, 'energy_before_no_charging_time': 0.0, 'rate_average_without_charging_time': 1.0}
+  cars changed by other readings {'cars_on_counting_days': 18, 'rate_history_ended_before_tau': 3, 'rate_average_over_plug_in_to_plug_out': 0, 'energy_before_charge_bound_switched': 0, 'energy_before_at_rate_not_nominal_cap': 18}
+- korea-public-parking (held-out): sessions 16, removed none, days 4, counting days 4, cars per counting day median 3.0 (p10 3.0, p90 3.0), in-window departure 1.0, zero room 0.0, room not fitting 0.0, depart hour 0 0.0
+  fallback shares {'rate_nominal_cap_no_user_id': 0.0, 'sessions_missing_user_id': 0.0, 'nominal_cap_floor_max_charge_power_missing': 0.0, 'energy_before_no_charging_time': 0.0, 'rate_average_without_charging_time': 1.0}
+  cars changed by other readings {'cars_on_counting_days': 12, 'rate_history_ended_before_tau': 3, 'rate_average_over_plug_in_to_plug_out': 0, 'energy_before_charge_bound_switched': 0, 'energy_before_at_rate_not_nominal_cap': 12}
+- korea-lodging (held-out): abstains, no calibration day at τ 17:00 (0 counting days); sessions 15, removed none
+- korea-visits (held-out): abstains, no calibration day at the start draw; sessions 3, removed none
+
+READINGS COUNTED PER UNIT (cars on counting days whose value would change)
+- rate_history_ended_before_tau: rate from the user's sessions plugged out at or before τ only; none: nominal cap
+- rate_average_over_plug_in_to_plug_out: every session's average over plug-in to plug-out, ignoring the recorded charging end
+- energy_before_charge_bound_switched: charge-field rule switched (applied to ACN with doneChargingTime, removed from NREL); the rule: nominal-cap hours from plug-in to τ count only inside the recorded charging time, and recorded charging ended at or before τ means the whole session energy was drawn before τ (room 0)
+- energy_before_at_rate_not_nominal_cap: energy before τ drawn at the car's rate, not the cap
+
+CHECKS
+- asr rows_read: {"asr": 20}
+- asr drop_shares: {"asr": {"energy missing or not positive": 0.2}}
+- asr dst_shift: {"asr": []}
+- asr units: {"asr": {"average_kw_max": 4.0, "average_kw_median": 2.0, "energy_kwh_max": 20.0, "energy_kwh_median": 20.0, "energy_kwh_min": 5.0, "energy_kwh_p01": 5.0, "energy_kwh_p99": 20.0, "limit_kw": 22.0, "sessions": 16, "share_average_above_limit": 0.0, "share_average_above_nominal": 0.0}}
+- asr midnight: {"asr": {"longest_h": 10.0, "share_ending_on_a_later_date": 0.0, "share_longer_than_24h": 0.0}}
+- asr weekday_plug_in_hours: {"asr": [0, 0, 0, 0, 0, 0, 0, 12, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+- norway rows_read: {"OSL_T": 180, "TRO_R": 36}
+- norway drop_shares: {"OSL_T": {}, "TRO_R": {}}
+- norway dst_shift: {"OSL_T": [], "TRO_R": []}
+- norway units: {"OSL_T": {"average_kw_max": 1.6, "average_kw_median": 1.4286, "energy_kwh_max": 10.0, "energy_kwh_median": 10.0, "energy_kwh_min": 8.0, "energy_kwh_p01": 8.0, "energy_kwh_p99": 10.0, "limit_kw": 22.0, "sessions": 180, "share_average_above_limit": 0.0, "share_average_above_nominal": 0.0}, "TRO_R": {"average_kw_max": 1.6, "average_kw_median": 1.4286, "energy_kwh_max": 10.0, "energy_kwh_median": 10.0, "energy_kwh_min": 8.0, "energy_kwh_p01": 8.0, "energy_kwh_p99": 10.0, "limit_kw": 22.0, "sessions": 36, "share_average_above_limit": 0.0, "share_average_above_nominal": 0.0}}
+- norway midnight: {"OSL_T": {"longest_h": 7.0, "share_ending_on_a_later_date": 0.0, "share_longer_than_24h": 0.0}, "TRO_R": {"longest_h": 7.0, "share_ending_on_a_later_date": 0.0, "share_longer_than_24h": 0.0}}
+- norway weekday_plug_in_hours: {"OSL_T": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 88, 44, 0, 0, 0, 0, 0, 0, 0], "TRO_R": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 10, 0, 0, 0, 0, 0, 0, 0]}
+- korea rows_read: {"korea-home": 52, "korea-lodging": 15, "korea-public-parking": 16, "korea-visits": 3, "korea-work": 31}
+- korea drop_shares: {"korea-home": {"fast charger (ChargerType 1)": 0.038462}, "korea-lodging": {}, "korea-public-parking": {}, "korea-visits": {}, "korea-work": {"fast charger (ChargerType 1)": 0.032258}}
+- korea dst_shift: {"korea-home": [], "korea-lodging": [], "korea-public-parking": [], "korea-visits": [], "korea-work": []}
+- korea units: {"korea-home": {"average_kw_max": 3.0, "average_kw_median": 3.0, "energy_kwh_max": 30.0, "energy_kwh_median": 30.0, "energy_kwh_min": 20.0, "energy_kwh_p01": 20.0, "energy_kwh_p99": 30.0, "limit_kw": 22.0, "sessions": 50, "share_average_above_limit": 0.0, "share_average_above_nominal": 0.0}, "korea-lodging": {"average_kw_max": 1.5625, "average_kw_median": 1.5625, "energy_kwh_max": 25.0, "energy_kwh_median": 25.0, "energy_kwh_min": 25.0, "energy_kwh_p01": 25.0, "energy_kwh_p99": 25.0, "limit_kw": 22.0, "sessions": 15, "share_average_above_limit": 0.0, "share_average_above_nominal": 0.0}, "korea-public-parking": {"average_kw_max": 2.0, "average_kw_median": 2.0, "energy_kwh_max": 12.0, "energy_kwh_median": 12.0, "energy_kwh_min": 6.0, "energy_kwh_p01": 6.0, "energy_kwh_p99": 12.0, "limit_kw": 22.0, "sessions": 16, "share_average_above_limit": 0.0, "share_average_above_nominal": 0.0}, "korea-visits": {"average_kw_max": 2.5, "average_kw_median": 2.5, "energy_kwh_max": 5.0, "energy_kwh_median": 5.0, "energy_kwh_min": 5.0, "energy_kwh_p01": 5.0, "energy_kwh_p99": 5.0, "limit_kw": 22.0, "sessions": 3, "share_average_above_limit": 0.0, "share_average_above_nominal": 0.0}, "korea-work": {"average_kw_max": 2.0, "average_kw_median": 2.0, "energy_kwh_max": 20.0, "energy_kwh_median": 20.0, "energy_kwh_min": 15.0, "energy_kwh_p01": 15.0, "energy_kwh_p99": 20.0, "limit_kw": 22.0, "sessions": 30, "share_average_above_limit": 0.0, "share_average_above_nominal": 0.0}}
+- korea midnight: {"korea-home": {"longest_h": 10.0, "share_ending_on_a_later_date": 1.0, "share_longer_than_24h": 0.0}, "korea-lodging": {"longest_h": 16.0, "share_ending_on_a_later_date": 1.0, "share_longer_than_24h": 0.0}, "korea-public-parking": {"longest_h": 6.0, "share_ending_on_a_later_date": 0.0, "share_longer_than_24h": 0.0}, "korea-visits": {"longest_h": 2.0, "share_ending_on_a_later_date": 0.0, "share_longer_than_24h": 0.0}, "korea-work": {"longest_h": 10.0, "share_ending_on_a_later_date": 0.0, "share_longer_than_24h": 0.0}}
+- korea weekday_plug_in_hours: {"korea-home": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 8, 0], "korea-lodging": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0], "korea-public-parking": [0, 0, 0, 0, 0, 0, 0, 0, 12, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "korea-visits": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "korea-work": [0, 0, 0, 0, 0, 0, 0, 12, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+
+TABLES WRITTEN
+- asr-before-march-2023: {'cars': '6437f78a64019ae357b055de2dc34f828a6934f841c3c17d3074c1672a98eb42', 'days': '53091dbfbd8c99c2ef0d8c8a9887d8dea19196e5d219b9b553bd330e7c381eae'}
+- asr-from-march-2023: {'cars': '375bd7b8e44b4c1ac96399061d4c6dbeec6c7d5a08616029b2a7517ccbfe4dee', 'days': 'a3a1ce7d65226ea5ae6dc5cfa9bed2c14b0cba4d3d4e2a896a5c02a9092a3d05'}
+- OSL_T: {'cars': 'f06ed78313efb9f06925407f20818e4eeb36ea88fdb971c98495dc0d38a093b6', 'days': 'b1ebecda4c316208c5aca7de8ae79ece531bf8a5393db0d4cd5a506b6b733c54'}
+- TRO_R: {'cars': 'b1a6b02a58da17cc61815bc7285927172bb8548c4501fca570717f8e74f2202b', 'days': '17f6f369884b74b807df4b63a0289599b56ac6105757da02f2ac4e64e18b2d1b'}
+- korea-home: {'cars': '4acaf6f9dc44afff12ec024ba275f83a72288b11b07c794676223adbd7998057', 'days': '6998f031656ceadb63d5eafd23dfbd377353b751399552a351e0be18ca993eba'}
+- korea-work: {'cars': 'a062a535ce58d57b7b13ac3048be2e98135f61196e69fe7e5d83745c97726d93', 'days': '4f49b9433969727dc9d411c24698565a3b30a81deca0b443ad5ff17dddb78b08'}
+- korea-public-parking: {'cars': '7c81355424f0529a22925d2f31f954dc0834a48d8335736b0a9c33b228d7d409', 'days': '89f58c6a7a37e019e65b8f77e72949d728abccfe9b65199a45fcadb1b1304e17'}

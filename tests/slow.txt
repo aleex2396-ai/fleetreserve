@@ -1,0 +1,81 @@
+# Test files that run in the slow set (`bash tools/check-slow.sh`), not in `bash check.sh`.
+# One line per file: `<path>  # <reason>`. Read by tools/run_tests.py with --set fast|slow.
+# A file is listed when its tests take more than 45 s of one process on a loaded machine,
+# so that the fast set of both lanes finishes in under 10 minutes; a file is not listed for
+# what it tests. Check the times again when a file is added or grows (`--durations=0`).
+tests/learn/test_cold_start_levels.py  # about 91 s of one process at load 9
+tests/learn/test_committed_matrix_levels.py  # about 700 s of one process at load 20 (guessed)
+tests/learn/test_dial_choice_earlier.py  # about 1021 s of one process under load
+tests/learn/test_dial_choice_seed_average.py  # about 117 s of one process under load
+tests/learn/test_dial_choice_what_if_fit.py  # about 195 s of one process under load
+tests/learn/test_dial_choice_what_if_models.py  # about 154 s of one process under load
+tests/learn/test_hazard_ablation_models.py  # about 74 s of one process under load
+tests/learn/test_hazard_table.py  # about 52 s of one process under load
+tests/learn/test_hazard_tune.py  # about 73 s of one process under load
+tests/learn/test_learn_workers.py  # about 1063 s of one process at load 10 to 15
+tests/learn/test_lgbm_tail_rotation.py  # about 64 s of one process under load
+tests/learn/test_lgbm_tuned.py  # about 76 s of one process under load
+tests/learn/test_matrix_levels.py  # about 325 s of one process at load 6
+tests/learn/test_model_earlier_gbm.py  # about 310 s of one process under load
+tests/learn/test_quantile_models.py  # about 70 s of one process under load
+tests/learn/test_size_ct.py  # about 74 s of one process under load
+tests/learn/test_size_net.py  # about 76 s of one process under load
+tests/learn/test_size_resolve_development.py  # about 116 s of one process under load
+tests/learn/test_size_resolve_whatif.py  # about 410 s of one process under load
+tests/learn/test_size_whatif.py  # about 85 s of one process under load
+tests/learn/test_survival_bound.py  # about 108 s of one process under load
+tests/learn/test_survival_regression_models.py  # about 52 s of one process under load
+tests/learn/test_t7_command.py  # about 56 s of one process under load
+tests/test_run_evidence.py  # about 98 s of one process under load
+tests/test_run_record.py  # about 47 s of one process under load
+tests/test_run_tests.py  # about 69 s of one process under load
+tests/wp1/test_t4_conjecture.py  # about 224 s of one process under load
+tests/wp10/test_asa_command.py  # about 209 s of one process under load
+tests/wp10/test_asa_diagnosis_command.py  # about 154 s of one process under load
+tests/wp10/test_asa_diagnosis_tie_in.py  # about 87 s of one process under load
+tests/wp10/test_compare_command.py  # about 270 s of one process under load
+tests/wp10/test_compare_shared_check.py  # about 113 s of one process under load
+tests/wp10/test_compare_tie_in.py  # about 78 s of one process under load
+tests/wp10/test_mef_command.py  # about 91 s of one process under load
+tests/wp10/test_mef_no_pause.py  # about 103 s of one process under load
+tests/wp10/test_no_pause_command.py  # about 86 s of one process under load
+tests/wp10/test_sizing_command.py  # about 67 s of one process under load
+tests/wp11/test_corner_command.py  # about 98 minutes under load (the whole corner search)
+tests/wp11/test_corner_properties.py  # about 78 s of one process under load
+tests/wp12/test_day_intervals_runs.py  # about 192 s of one process under load
+tests/wp12/test_day_losses.py  # about 87 s of one process under load
+tests/wp12/test_run_list_sealed.py  # about 76 s of one process under load
+tests/wp14/test_cold_start_evidence.py  # about 55 s of one process under load
+tests/wp14/test_o3_command.py  # about 68 s of one process under load
+tests/wp14/test_o3_lp27.py  # about 82 s of one process under load
+tests/wp14/test_o3_orders.py  # about 77 s of one process under load
+tests/wp15/test_wp15_check.py  # about 480 s of one process under load
+tests/wp2/test_corner_route.py  # about 108 s of one process under load
+tests/wp2/test_heldout_fix_commit.py  # about 61 s of one process under load
+tests/wp2/test_heldout_gates.py  # about 82 s of one process under load
+tests/wp2/test_heldout_learn_failed_readers.py  # about 390 s of one process under load
+tests/wp2/test_heldout_route_drift.py  # about 340 s of one process under load
+tests/wp2/test_heldout_route_ledger.py  # about 544 s of one process under load
+tests/wp2/test_known_car_ceiling.py  # about 47 s of one process under load
+tests/wp6fleet/test_fleet_size_command.py  # about 369 s of one process under load
+tests/wp6gate/test_dial_choice.py  # about 245 s of one process under load
+tests/wp6gate/test_dial_choice_kappa.py  # about 256 s of one process under load
+tests/wp6gate/test_dial_choice_split_offers.py  # about 131 s of one process under load
+tests/wp6gate/test_dial_choice_what_if.py  # about 317 s of one process under load
+tests/wp6gate/test_dial_gate_reading.py  # about 128 s of one process under load
+tests/wp6gate/test_gate_driver_risk_run.py  # about 82 s of one process under load
+tests/wp6gate/test_gate_run.py  # about 138 s of one process under load
+tests/wp6gate/test_gate_setting.py  # about 47 s of one process under load
+tests/wp6gate/test_kappa_choice_fits.py  # about 253 s of one process under load
+tests/wp6gate/test_kappa_choice_seed_average.py  # about 298 s of one process under load
+tests/wp6gate/test_model_pairs.py  # about 257 s of one process under load
+tests/wp6gate/test_tiers_summary.py  # about 67 s of one process under load
+tests/wp8/test_learn_e_prime.py  # about 102 s of one process under load
+tests/wp8/test_learn_run.py  # about 56 s of one process under load
+tests/wp8/test_learn_setting.py  # about 49 s of one process under load
+tests/wp8/test_model_declared.py  # about 84 s of one process under load
+tests/wp8/test_size_scale.py  # about 66 s of one process under load
+tests/wp9/test_balance_gap_run.py  # about 58 s of one process under load
+tests/wp9/test_centre_scale_whatif.py  # about 292 s of one process under load
+tests/wp9/test_site_dial_whatif.py  # about 70 s of one process under load
+tests/wp9/test_t7_unit.py  # about 53 s of one process under load

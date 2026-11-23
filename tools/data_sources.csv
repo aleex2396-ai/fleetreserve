@@ -1,0 +1,11 @@
+set,name,role,bytes,md5,url
+norway-original,Dataset1_charging_reports.csv,held-out,3105240,8bb7463d760cc846271b1ed9bdf808fd,https://zenodo.org/api/records/13896176/files/Dataset1_charging_reports.csv/content
+norway-original,Dataset2_user_predictions.csv,held-out,9687,ed0a2c2a2600ca5b5e08f98d7d7d6d10,https://zenodo.org/api/records/13896176/files/Dataset2_user_predictions.csv/content
+norway-original,Dataset3_session_predictions.csv,held-out,3868748,df82be864494c37f727e19215c62c235,https://zenodo.org/api/records/13896176/files/Dataset3_session_predictions.csv/content
+norway-original,Dataset4_hourly_predictions.csv,held-out,41123497,41c19cb88e1d35770ade88633d564c3a,https://zenodo.org/api/records/13896176/files/Dataset4_hourly_predictions.csv/content
+norway,1-s2.0-S2352340924008461-main.pdf,document,312531,b023385fa719c315278680232bb6312c,https://zenodo.org/api/records/13896176/files/1-s2.0-S2352340924008461-main.pdf/content
+asr,202410DatasetEVOfficeParking_v0.csv,held-out,4270702,1c3eef11775c274c239c77714ad0705a,https://data.4tu.nl/file/80ef3824-3f5d-4e45-8794-3b8791efbd13/f2e3498b-1f30-45ac-a440-25215e83f94d
+asr,README.txt,document,13271,382fab9d855e7a3e29c55c6b0e8ce3e8,https://data.4tu.nl/file/80ef3824-3f5d-4e45-8794-3b8791efbd13/f2dbd7cf-0647-45c5-8e44-ab3b6d35ad6a
+korea,ChargingRecords.csv,held-out,7605859,09522f5d04d44a18548ac82c2b993663,https://ndownloader.figshare.com/files/39952252
+nrel,dataSet_Oct2021.csv,development,,,https://data.nlr.gov/system/files/182/dataSet_Oct2021.csv
+korea,Code.zip,document,5914,3421656f0b8a583f196d75baa1f65552,https://ndownloader.figshare.com/files/39952261

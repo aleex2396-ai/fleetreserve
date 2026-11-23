@@ -1,0 +1,1192 @@
+{
+ "format": "run-list-2",
+ "about": "The run list of the run from the tag (plan section 13, WP14) and of its dress rehearsal on development units (WP12). Each model run through the full method has its own matrix pair, written by fleetreserve.sealed_matrix from that model's kappa-choice results by reading R2 (gate/sealed-matrix/<model>.json, gate/rehearsal-matrix/<model>.json); Kaplan-Meier, pooled LightGBM and Cox are scored on the main model's matrix, their fixed plan alone reported. The fixed names dial-workplaces and dial-others are the main model's dials per site type, sealed_choice.dials of gate/sealed-matrix/lgbm_tail.json, entered here when that matrix is written. Seeds and counts are set here, before the tag. The comparison (compare) and the corner search (corner) each run once, at the dial that both site types share in sealed_choice.dials of gate/sealed-matrix/lgbm_tail.json, since each scores every unit of its matrix at the one dial given and a second entry per site type would repeat the first. Each runs with 6 workers, which gives the results of one worker in less time (norway-development-pooled, timing of 22 November 2026). Readings of plan section 13, WP15 (alternatives in brackets): W1. The sensitivity at rho 0.1 and 0.2, for the main model only, is the learn runs learn-lgbm_tail-rho0_1 and learn-lgbm_tail-rho0_2 (labels hold no point) on the matrices gate/sealed-matrix/lgbm_tail-rho<r>.json, at the main model's own kappa and dials: each reports the offer and both hourly ceilings at its rho, and the entries intervals-lgbm_tail-rho0_1 and intervals-lgbm_tail-rho0_2 give its intervals over days; no other command of the sealed route runs at those rho values, outcome O2's two ceiling_report entries running at rho 0 alone (O1 below; the owner's decision 79 (4) of 19 November 2026) [alternatives: also the ledger run, or the comparison of baselines, on each rho matrix]. W2. The chronological calibration (T10, at OSL_T) is the entry drift-lgbm_tail, the drift guard's run on OSL_T alone [alternative: a run of its own with a chronological split of OSL_T's days]. W3. The regimes, with no split beyond the two a.s.r. units, are the two a.s.r. units asr-before-march-2023 and asr-from-march-2023, scored as units of their own by every learn run and named as the workplaces units [alternative: a run of its own pooling the two units]. Intervals over days (plan section 11, opening paragraph: intervals are \"given for the main model lgbm_tail and the neural model hazard_tuned_inputs only\"). I1. Each run of the main model lgbm_tail and of hazard_tuned_inputs that plan sections 7 and 13 report has its day_intervals entry: intervals-lgbm_tail (the main family and the beside reading of section 5, both in the matrix of learn-lgbm_tail; day_intervals gives each configuration's intervals), intervals-hazard_tuned_inputs, intervals-lgbm_tail-forecast-energy (the comparison with forecast energy, WP14), intervals-lgbm_tail-held (the held setting, WP14) and intervals-lgbm_tail-rho0_1, intervals-lgbm_tail-rho0_2 (WP15) [alternative: the headline run alone, reading \"O1's X and O4\" as the main family only]. I2. No day_intervals entry for the earlier forecasts earlier_gbm and earlier_population (full method, WP14), nor for Kaplan-Meier, pooled LightGBM and Cox (fixed plan, WP14): the same sentence of plan section 11 gives intervals for lgbm_tail and hazard_tuned_inputs only. I3. No day_intervals entry for the comparison run, the corner search, the cold start, the ledger, the drift guard or O3: day_intervals reads only runs of learn_run or gate_run (its module text), and plan section 11 gives intervals for the two models' scoring runs (O1's X and O4). Outcome O2 (plan section 11: \"block product, M days with |S|<=8\"). O1. O2 is the two ceiling_report entries o2-rho0 (main setting: tables data/derived/truth, truth run of dev-truth) and o2-held-rho0 (held setting: tables data/derived/truth-held, truth run of dev-truth-held), both at rho 0, each on every counting day (--every-day) of the group nine: in the sealed run the nine held-out units, with --held-out-truth-run of sealed-truth (main), or --held-out-tables data/derived/truth-heldout-held and --held-out-truth-run of sealed-truth-held (held); in the rehearsal the three development units, with no held-out option. Plan section 11 names no rho and no setting for O2; the held setting is run in full beside the main one for the main model (plan section 3), and no O2 entry runs at rho 0.1 or 0.2 (W1 kept): the owner's decision 79 (4) of 19 November 2026. The checker's rule 12 holds each purpose to these two entries [alternatives: also rho 0.1 and 0.2 in both settings, six entries; rho 0 in the main setting alone]. O2. Each of the two entries is expected to exit 0 once it ran, O2's verdict (passed, failed or could not run) only in its results file, so a failed O2 stops no later step; exit 2 is could not run (the owner's decision of 19 November 2026). O3. Every entry of the list has the time limit 172800 s (48 h), a guard against a hang only and never a planned length, so that no step is cut for running long (the owner's instruction of 22 November 2026); the list's rule on time limits holds for each.",
+ "units": {
+  "rehearsal": {
+   "workplaces": [
+    "nrel-before-may-2019",
+    "nrel-from-may-2019"
+   ],
+   "others": [
+    "norway-development-pooled"
+   ],
+   "drift": [
+    "norway-development-pooled"
+   ],
+   "nine": [
+    "nrel-before-may-2019",
+    "nrel-from-may-2019",
+    "norway-development-pooled"
+   ]
+  },
+  "sealed-run": {
+   "workplaces": [
+    "asr-before-march-2023",
+    "asr-from-march-2023"
+   ],
+   "others": [
+    "OSL_T",
+    "TRO_R",
+    "korea-home",
+    "korea-lodging",
+    "korea-work",
+    "korea-public-parking",
+    "korea-visits"
+   ],
+   "drift": [
+    "OSL_T"
+   ],
+   "nine": [
+    "asr-before-march-2023",
+    "asr-from-march-2023",
+    "OSL_T",
+    "TRO_R",
+    "korea-home",
+    "korea-lodging",
+    "korea-work",
+    "korea-public-parking",
+    "korea-visits"
+   ]
+  }
+ },
+ "fixed": {
+  "seeds": {
+   "intervals": 20261122,
+   "ledger": 1,
+   "o3": 1,
+   "split": 1,
+   "no-pause": 1
+  },
+  "counts": {
+   "resamples": 2000,
+   "ledger-tree-days": 100,
+   "corner-days": 50,
+   "o3-days": 200
+  },
+  "names": {
+   "dial-workplaces": "0.02",
+   "dial-others": "0.02",
+   "base-set": "day-average"
+  }
+ },
+ "entries": [
+  {
+   "label": "dev-truth",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.truth_build"
+   ],
+   "units": null,
+   "extra": {},
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": []
+  },
+  {
+   "label": "dev-truth-held",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.truth_build",
+    "--setting",
+    "held"
+   ],
+   "units": null,
+   "extra": {},
+   "setting": "held",
+   "max_seconds": 172800,
+   "after": []
+  },
+  {
+   "label": "sealed-truth",
+   "only": "sealed-run",
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.heldout_truth_build"
+   ],
+   "units": null,
+   "extra": {},
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": []
+  },
+  {
+   "label": "sealed-truth-held",
+   "only": "sealed-run",
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.heldout_truth_build",
+    "--setting",
+    "held"
+   ],
+   "units": null,
+   "extra": {},
+   "setting": "held",
+   "max_seconds": 172800,
+   "after": []
+  },
+  {
+   "label": "learn-lgbm_tail",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "lgbm_tail",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "learn-hazard_tuned_inputs",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "hazard_tuned_inputs",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/hazard_tuned_inputs.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/hazard_tuned_inputs.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "learn-earlier_gbm",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "earlier_gbm",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/earlier_gbm.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/earlier_gbm.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "learn-earlier_population",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "earlier_population",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/earlier_population.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/earlier_population.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "learn-lgbm_tail-forecast-energy",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "lgbm_tail",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail-forecast-energy.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail-forecast-energy.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "learn-lgbm_tail-rho0_1",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "lgbm_tail",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail-rho0.1.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail-rho0.1.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "learn-lgbm_tail-rho0_2",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "lgbm_tail",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail-rho0.2.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail-rho0.2.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "learn-fixed-plan-km",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "km",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "learn-fixed-plan-lgbm",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "lgbm",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "learn-fixed-plan-cox",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "cox",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "learn-lgbm_tail-held",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.learn_run",
+    "--model",
+    "lgbm_tail",
+    "--tables",
+    "data/derived/truth-held",
+    "--truth-run",
+    "{run:dev-truth-held}",
+    "--interval-seed",
+    "{seed:intervals}",
+    "--interval-resamples",
+    "{count:resamples}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-tables",
+     "data/derived/truth-heldout-held",
+     "--held-out-truth-run",
+     "{run:sealed-truth-held}"
+    ]
+   },
+   "setting": "held",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth-held"
+   ]
+  },
+  {
+   "label": "intervals-lgbm_tail",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.day_intervals",
+    "--run",
+    "{run:learn-lgbm_tail}",
+    "--seed",
+    "{seed:intervals}"
+   ],
+   "units": null,
+   "extra": {},
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "learn-lgbm_tail"
+   ]
+  },
+  {
+   "label": "intervals-hazard_tuned_inputs",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.day_intervals",
+    "--run",
+    "{run:learn-hazard_tuned_inputs}",
+    "--seed",
+    "{seed:intervals}"
+   ],
+   "units": null,
+   "extra": {},
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "learn-hazard_tuned_inputs"
+   ]
+  },
+  {
+   "label": "intervals-lgbm_tail-rho0_1",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.day_intervals",
+    "--run",
+    "{run:learn-lgbm_tail-rho0_1}",
+    "--seed",
+    "{seed:intervals}"
+   ],
+   "units": null,
+   "extra": {},
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "learn-lgbm_tail-rho0_1"
+   ]
+  },
+  {
+   "label": "intervals-lgbm_tail-rho0_2",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.day_intervals",
+    "--run",
+    "{run:learn-lgbm_tail-rho0_2}",
+    "--seed",
+    "{seed:intervals}"
+   ],
+   "units": null,
+   "extra": {},
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "learn-lgbm_tail-rho0_2"
+   ]
+  },
+  {
+   "label": "intervals-lgbm_tail-forecast-energy",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.day_intervals",
+    "--run",
+    "{run:learn-lgbm_tail-forecast-energy}",
+    "--seed",
+    "{seed:intervals}"
+   ],
+   "units": null,
+   "extra": {},
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "learn-lgbm_tail-forecast-energy"
+   ]
+  },
+  {
+   "label": "intervals-lgbm_tail-held",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.day_intervals",
+    "--run",
+    "{run:learn-lgbm_tail-held}",
+    "--seed",
+    "{seed:intervals}"
+   ],
+   "units": null,
+   "extra": {},
+   "setting": "held",
+   "max_seconds": 172800,
+   "after": [
+    "learn-lgbm_tail-held"
+   ]
+  },
+  {
+   "label": "ledger-lgbm_tail",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.ledger_run",
+    "--run",
+    "{run:learn-lgbm_tail}",
+    "--tree-days",
+    "{count:ledger-tree-days}",
+    "--seed",
+    "{seed:ledger}",
+    "--truth-run",
+    "{run:dev-truth}"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "learn-lgbm_tail"
+   ]
+  },
+  {
+   "label": "compare",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.compare_run",
+    "--model",
+    "lgbm_tail",
+    "--dial",
+    "{name:dial-workplaces}",
+    "--splits",
+    "1",
+    "--no-pause-seed",
+    "{seed:no-pause}",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "corner",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.corner_run",
+    "--model",
+    "lgbm_tail",
+    "--dial",
+    "{name:dial-workplaces}",
+    "--days",
+    "{count:corner-days}",
+    "--seed",
+    "{seed:split}",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--workers",
+    "6"
+   ],
+   "units": null,
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "cold-start-workplaces",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.cold_start",
+    "--model",
+    "lgbm_tail",
+    "--dial",
+    "{name:dial-workplaces}",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--units",
+    "{units}"
+   ],
+   "units": "workplaces",
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "cold-start-others",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.cold_start",
+    "--model",
+    "lgbm_tail",
+    "--dial",
+    "{name:dial-others}",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--units",
+    "{units}"
+   ],
+   "units": "others",
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "drift-lgbm_tail",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.drift_run",
+    "--model",
+    "lgbm_tail",
+    "--dial",
+    "{name:dial-others}",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--units",
+    "{units}"
+   ],
+   "units": "drift",
+   "extra": {
+    "rehearsal": [
+     "--matrix",
+     "gate/rehearsal-matrix/lgbm_tail.json"
+    ],
+    "sealed-run": [
+     "--matrix",
+     "gate/sealed-matrix/lgbm_tail.json",
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "o3",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.o3_run",
+    "--days",
+    "{count:o3-days}",
+    "--seed",
+    "{seed:o3}",
+    "--base-set",
+    "{name:base-set}",
+    "--truth-run",
+    "{run:dev-truth}",
+    "--units",
+    "{units}",
+    "--workers",
+    "6"
+   ],
+   "units": "nine",
+   "extra": {
+    "sealed-run": [
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "o2-rho0",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.ceiling_report",
+    "--units",
+    "{units}",
+    "--every-day",
+    "--rho",
+    "0",
+    "--workers",
+    "4",
+    "--tables",
+    "data/derived/truth",
+    "--truth-run",
+    "{run:dev-truth}"
+   ],
+   "units": "nine",
+   "extra": {
+    "sealed-run": [
+     "--held-out-truth-run",
+     "{run:sealed-truth}"
+    ]
+   },
+   "setting": "main",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth"
+   ]
+  },
+  {
+   "label": "o2-held-rho0",
+   "only": null,
+   "command": [
+    "uv",
+    "run",
+    "--frozen",
+    "--group",
+    "learn",
+    "--group",
+    "baselines",
+    "python",
+    "-m",
+    "fleetreserve.ceiling_report",
+    "--units",
+    "{units}",
+    "--every-day",
+    "--rho",
+    "0",
+    "--workers",
+    "4",
+    "--tables",
+    "data/derived/truth-held",
+    "--truth-run",
+    "{run:dev-truth-held}"
+   ],
+   "units": "nine",
+   "extra": {
+    "sealed-run": [
+     "--held-out-tables",
+     "data/derived/truth-heldout-held",
+     "--held-out-truth-run",
+     "{run:sealed-truth-held}"
+    ]
+   },
+   "setting": "held",
+   "max_seconds": 172800,
+   "after": [
+    "dev-truth-held"
+   ]
+  }
+ ]
+}

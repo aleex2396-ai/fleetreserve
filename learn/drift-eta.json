@@ -1,0 +1,474 @@
+{
+ "about": "The step size eta of the drift guard (plan section 6, T10), per tier and site type, written by fleetreserve.drift_settings from the results of a recorded fleetreserve.drift_run on training units, by the rule named here applied to each site type's units apart. Not edited by hand.",
+ "dial": 0.02,
+ "eta": {
+  "A": {
+   "other": 3.0,
+   "workplace": 0.5
+  },
+  "B": {
+   "other": 50.0,
+   "workplace": 0.5
+  }
+ },
+ "figures": {
+  "A": {
+   "other": {
+    "0.01": {
+     "offer_kwh_per_counting_day_summed_over_units": 0.10348624383139632,
+     "share_guard_abstaining_of_offering_days": 0.050352467270896276,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.02": {
+     "offer_kwh_per_counting_day_summed_over_units": 0.20301452417370935,
+     "share_guard_abstaining_of_offering_days": 0.059415911379657606,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.05": {
+     "offer_kwh_per_counting_day_summed_over_units": 0.49420982772312955,
+     "share_guard_abstaining_of_offering_days": 0.06042296072507553,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.1": {
+     "offer_kwh_per_counting_day_summed_over_units": 0.972138317894599,
+     "share_guard_abstaining_of_offering_days": 0.05740181268882175,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.2": {
+     "offer_kwh_per_counting_day_summed_over_units": 1.7126716564506965,
+     "share_guard_abstaining_of_offering_days": 0.06948640483383686,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.5": {
+     "offer_kwh_per_counting_day_summed_over_units": 3.1302083376104877,
+     "share_guard_abstaining_of_offering_days": 0.08056394763343404,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "1": {
+     "offer_kwh_per_counting_day_summed_over_units": 3.9759780067130244,
+     "share_guard_abstaining_of_offering_days": 0.12890231621349446,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "10": {
+     "offer_kwh_per_counting_day_summed_over_units": 5.870839317675574,
+     "share_guard_abstaining_of_offering_days": 0.21953675730110775,
+     "units_failing": {
+      "ASK": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "2": {
+     "offer_kwh_per_counting_day_summed_over_units": 4.676976600913906,
+     "share_guard_abstaining_of_offering_days": 0.16515609264853978,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "20": {
+     "offer_kwh_per_counting_day_summed_over_units": 6.235650014783706,
+     "share_guard_abstaining_of_offering_days": 0.23061430010070494,
+     "units_failing": {
+      "ASK": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "3": {
+     "offer_kwh_per_counting_day_summed_over_units": 5.196990387986945,
+     "share_guard_abstaining_of_offering_days": 0.1782477341389728,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "5": {
+     "offer_kwh_per_counting_day_summed_over_units": 5.502339743729463,
+     "share_guard_abstaining_of_offering_days": 0.2084592145015106,
+     "units_failing": {
+      "ASK": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "50": {
+     "offer_kwh_per_counting_day_summed_over_units": 6.382436988689559,
+     "share_guard_abstaining_of_offering_days": 0.23061430010070494,
+     "units_failing": {
+      "ASK": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "7": {
+     "offer_kwh_per_counting_day_summed_over_units": 5.753986479175746,
+     "share_guard_abstaining_of_offering_days": 0.20745216515609266,
+     "units_failing": {
+      "ASK": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    }
+   },
+   "workplace": {
+    "0.01": {
+     "offer_kwh_per_counting_day_summed_over_units": 3.3745177079797193,
+     "share_guard_abstaining_of_offering_days": 0.11746361746361747,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.02": {
+     "offer_kwh_per_counting_day_summed_over_units": 6.595087768305747,
+     "share_guard_abstaining_of_offering_days": 0.11746361746361747,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.05": {
+     "offer_kwh_per_counting_day_summed_over_units": 15.58193160399877,
+     "share_guard_abstaining_of_offering_days": 0.12681912681912683,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.1": {
+     "offer_kwh_per_counting_day_summed_over_units": 28.25852120444494,
+     "share_guard_abstaining_of_offering_days": 0.12681912681912683,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.2": {
+     "offer_kwh_per_counting_day_summed_over_units": 43.568934075325494,
+     "share_guard_abstaining_of_offering_days": 0.12785862785862787,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.5": {
+     "offer_kwh_per_counting_day_summed_over_units": 50.21376910534041,
+     "share_guard_abstaining_of_offering_days": 0.14033264033264034,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "1": {
+     "offer_kwh_per_counting_day_summed_over_units": 46.64578345217497,
+     "share_guard_abstaining_of_offering_days": 0.17671517671517672,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "10": {
+     "offer_kwh_per_counting_day_summed_over_units": 26.767531914437384,
+     "share_guard_abstaining_of_offering_days": 0.5395010395010394,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "2": {
+     "offer_kwh_per_counting_day_summed_over_units": 39.75708158781318,
+     "share_guard_abstaining_of_offering_days": 0.30145530145530147,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "20": {
+     "offer_kwh_per_counting_day_summed_over_units": 24.424993029122867,
+     "share_guard_abstaining_of_offering_days": 0.5821205821205822,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "3": {
+     "offer_kwh_per_counting_day_summed_over_units": 35.22124846092472,
+     "share_guard_abstaining_of_offering_days": 0.369022869022869,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "5": {
+     "offer_kwh_per_counting_day_summed_over_units": 29.555583338892752,
+     "share_guard_abstaining_of_offering_days": 0.4594594594594595,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "50": {
+     "offer_kwh_per_counting_day_summed_over_units": 24.49404977832069,
+     "share_guard_abstaining_of_offering_days": 0.6205821205821206,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "7": {
+     "offer_kwh_per_counting_day_summed_over_units": 27.299224559277192,
+     "share_guard_abstaining_of_offering_days": 0.5083160083160083,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    }
+   }
+  },
+  "B": {
+   "other": {
+    "0.01": {
+     "offer_kwh_per_counting_day_summed_over_units": 0.5223880988841247,
+     "share_guard_abstaining_of_offering_days": 0.026183282980866064,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.02": {
+     "offer_kwh_per_counting_day_summed_over_units": 1.0303708260805569,
+     "share_guard_abstaining_of_offering_days": 0.03423967774420947,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.05": {
+     "offer_kwh_per_counting_day_summed_over_units": 2.530241858737072,
+     "share_guard_abstaining_of_offering_days": 0.03423967774420947,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.1": {
+     "offer_kwh_per_counting_day_summed_over_units": 4.383317405955519,
+     "share_guard_abstaining_of_offering_days": 0.030211480362537766,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.2": {
+     "offer_kwh_per_counting_day_summed_over_units": 5.743545076522467,
+     "share_guard_abstaining_of_offering_days": 0.044310171198388724,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.5": {
+     "offer_kwh_per_counting_day_summed_over_units": 6.837330094348014,
+     "share_guard_abstaining_of_offering_days": 0.07150050352467271,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "1": {
+     "offer_kwh_per_counting_day_summed_over_units": 7.237779879854191,
+     "share_guard_abstaining_of_offering_days": 0.0866062437059416,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "10": {
+     "offer_kwh_per_counting_day_summed_over_units": 7.751770992401736,
+     "share_guard_abstaining_of_offering_days": 0.12386706948640483,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "2": {
+     "offer_kwh_per_counting_day_summed_over_units": 7.51360337863691,
+     "share_guard_abstaining_of_offering_days": 0.09365558912386707,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "20": {
+     "offer_kwh_per_counting_day_summed_over_units": 7.779943652324723,
+     "share_guard_abstaining_of_offering_days": 0.13192346424974824,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "3": {
+     "offer_kwh_per_counting_day_summed_over_units": 7.60920514909232,
+     "share_guard_abstaining_of_offering_days": 0.10473313192346426,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "5": {
+     "offer_kwh_per_counting_day_summed_over_units": 7.692190581321944,
+     "share_guard_abstaining_of_offering_days": 0.12386706948640483,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "50": {
+     "offer_kwh_per_counting_day_summed_over_units": 7.799281007225709,
+     "share_guard_abstaining_of_offering_days": 0.13293051359516617,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "7": {
+     "offer_kwh_per_counting_day_summed_over_units": 7.7149411951435685,
+     "share_guard_abstaining_of_offering_days": 0.11581067472306143,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    }
+   },
+   "workplace": {
+    "0.01": {
+     "offer_kwh_per_counting_day_summed_over_units": 12.256902236347711,
+     "share_guard_abstaining_of_offering_days": 0.10914760914760915,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.02": {
+     "offer_kwh_per_counting_day_summed_over_units": 21.49561678658509,
+     "share_guard_abstaining_of_offering_days": 0.10914760914760915,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.05": {
+     "offer_kwh_per_counting_day_summed_over_units": 41.550169293368974,
+     "share_guard_abstaining_of_offering_days": 0.11850311850311851,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.1": {
+     "offer_kwh_per_counting_day_summed_over_units": 52.13160563647136,
+     "share_guard_abstaining_of_offering_days": 0.11850311850311851,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.2": {
+     "offer_kwh_per_counting_day_summed_over_units": 57.67088613138178,
+     "share_guard_abstaining_of_offering_days": 0.11850311850311851,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "0.5": {
+     "offer_kwh_per_counting_day_summed_over_units": 55.40755975262924,
+     "share_guard_abstaining_of_offering_days": 0.13097713097713098,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "1": {
+     "offer_kwh_per_counting_day_summed_over_units": 50.35355089750078,
+     "share_guard_abstaining_of_offering_days": 0.1652806652806653,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "10": {
+     "offer_kwh_per_counting_day_summed_over_units": 27.51396378938275,
+     "share_guard_abstaining_of_offering_days": 0.5415800415800416,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "2": {
+     "offer_kwh_per_counting_day_summed_over_units": 40.97657525789107,
+     "share_guard_abstaining_of_offering_days": 0.3108108108108108,
+     "units_failing": {},
+     "within_alpha_on_every_unit": true
+    },
+    "20": {
+     "offer_kwh_per_counting_day_summed_over_units": 24.424993029122867,
+     "share_guard_abstaining_of_offering_days": 0.5821205821205822,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "3": {
+     "offer_kwh_per_counting_day_summed_over_units": 33.790533770780385,
+     "share_guard_abstaining_of_offering_days": 0.3794178794178794,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "5": {
+     "offer_kwh_per_counting_day_summed_over_units": 29.546945987410375,
+     "share_guard_abstaining_of_offering_days": 0.47193347193347196,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "50": {
+     "offer_kwh_per_counting_day_summed_over_units": 24.49404977832069,
+     "share_guard_abstaining_of_offering_days": 0.6205821205821206,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    },
+    "7": {
+     "offer_kwh_per_counting_day_summed_over_units": 27.713686346397072,
+     "share_guard_abstaining_of_offering_days": 0.5103950103950103,
+     "units_failing": {
+      "jpl": "a guarded loss's final mean is above its level"
+     },
+     "within_alpha_on_every_unit": false
+    }
+   }
+  }
+ },
+ "grouping": "site-type",
+ "grouping_text": "per site type, as the dial is read (plan section 6): workplaces from the workplace training units of the run, Norway and Korea (the type other) from its Norwegian training units; the figures and the rule on each type's units apart; a unit's type is learn_features.SITE_TYPES of its name (reading E14)",
+ "model": "lgbm_tail_rotation",
+ "results": {
+  "commit": "bcf8e3849a9ffcc45d5c426f7ea16c40e2d9cf78",
+  "file": "drift-run.json",
+  "run_folder": "20261120T122445Z-wp9-drift-run-eta-k05-bcf8e38",
+  "sha256": "de4e1b55152d4cb25c893e7ce427f45705baf1242a1dc511e3c4e49b42fe8ef4"
+ },
+ "rule": "largest-below-first-failure",
+ "rule_text": "from the candidate step sizes of the chronological run on the training units from beta_1 = 0, taken in increasing order: the largest one below the first that fails, or the largest one tried when none fails, a step size failing when its mean losses do not end within their levels on every unit of the type (slot loss; in tier A also driver loss); where the smallest already fails, the drift guard's run offers nothing for that tier and site type (plan section 6, T10; readings E25 to E28)",
+ "site_types": {
+  "other": {
+   "units": [
+    "ASK",
+    "BAR",
+    "OSL_S",
+    "TRO"
+   ],
+   "units_left_out": {
+    "BOD": "too few counting days: 5, and the first 50 calibrate, so no day is left for the guard"
+   }
+  },
+  "workplace": {
+   "units": [
+    "caltech",
+    "jpl"
+   ],
+   "units_left_out": {
+    "office001": "too few counting days: 10, and the first 50 calibrate, so no day is left for the guard"
+   }
+  }
+ },
+ "start": "zero",
+ "units": [
+  "caltech",
+  "jpl",
+  "office001",
+  "OSL_S",
+  "ASK",
+  "TRO",
+  "BAR",
+  "BOD"
+ ],
+ "units_judged": {
+  "A": {
+   "other": [
+    "ASK",
+    "BAR",
+    "OSL_S",
+    "TRO"
+   ],
+   "workplace": [
+    "caltech",
+    "jpl"
+   ]
+  },
+  "B": {
+   "other": [
+    "ASK",
+    "BAR",
+    "OSL_S",
+    "TRO"
+   ],
+   "workplace": [
+    "caltech",
+    "jpl"
+   ]
+  }
+ }
+}

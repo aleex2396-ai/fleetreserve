@@ -1,0 +1,8 @@
+{
+ "about": "Candidate settings of the neural hazard departure model, read by fleetreserve.hazard_tune (plan section 7, hazard model; section 13, WP8). Every combination of one width, one learning_rate and one kl_weight (the weight of the divergence term of the day factor) is a fitted candidate: 2 x 2 x 3 = 12. Each is fitted once per seed and training fold up to the largest epochs value, and scored at each epochs value as a checkpoint of that fit, so there are 12 x 5 = 60 candidates. A candidate's score is the mean over the seeds. Every other setting stays at its default in hazard_settings. The defaults (width 32, learning rate 0.003, kl_weight 1, 30 epochs) are one of the candidates. Fixed before any run on training data; the SHA-256 of this file is written into the results and into the settings file made from them.",
+ "seeds": [0, 1, 2],
+ "epochs": [10, 20, 30, 50, 80],
+ "width": [32, 64],
+ "learning_rate": [0.003, 0.001],
+ "kl_weight": [1.0, 0.3, 0.1]
+}

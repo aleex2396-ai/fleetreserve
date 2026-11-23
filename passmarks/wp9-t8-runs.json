@@ -1,0 +1,31 @@
+{
+  "what": "The recorded soft-scale checks (python -m fleetreserve.soft_scale_check) that item t8 of passmarks/wp9.sh combines, read by tools/wp9_check.py at the checked-out commit (its reading W3e): every listed run is required, each with the run label, model, configuration and committed matrix it must have, and, where an entry names it, its days per unit (days_per_unit, the command's --days, at least the command's default 100; absent: 100); a label begins with wp9-soft-scale-check- and has the form the run recorder allows. The two runs on gate/matrix.json check the development units; the two on gate/t8-training-a.json and gate/t8-training-b.json check training-site days, four training units each in a rotation what-if, with lgbm_tail_rotation fitted on the other four.",
+  "runs": [
+    {
+      "label": "wp9-soft-scale-check-lgbm_tail-fractional",
+      "model": "lgbm_tail",
+      "configuration": "main-k0.3-empirical",
+      "matrix": "gate/matrix.json"
+    },
+    {
+      "label": "wp9-soft-scale-check-lgbm_tail-rounded-eps0-02",
+      "model": "lgbm_tail",
+      "configuration": "main-rounded-hour-k0.3-eps0.02-empirical",
+      "matrix": "gate/matrix.json"
+    },
+    {
+      "label": "wp9-soft-scale-check-lgbm_tail_rotation-training-a",
+      "model": "lgbm_tail_rotation",
+      "configuration": "main-k0.3-empirical",
+      "matrix": "gate/t8-training-a.json",
+      "days_per_unit": 300
+    },
+    {
+      "label": "wp9-soft-scale-check-lgbm_tail_rotation-training-b",
+      "model": "lgbm_tail_rotation",
+      "configuration": "main-k0.3-empirical",
+      "matrix": "gate/t8-training-b.json",
+      "days_per_unit": 300
+    }
+  ]
+}

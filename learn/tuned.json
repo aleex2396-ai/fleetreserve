@@ -1,0 +1,20 @@
+{
+ "about": "Settings of the tuned pooled LightGBM departure models (models.lgbm_tuned, models.lgbm_tuned_surv), written by fleetreserve.learn_tune_settings from the results of a recorded fleetreserve.learn_tune run on the training sites. Not edited by hand.",
+ "grid": {
+  "file": "tune-grid.json",
+  "sha256": "62e986a2f7a60a3fd703a50ded1736ec81719bdacd2a194a72f4d22f3a95d845"
+ },
+ "results": {
+  "commit": "94d9fb36af4f0dc2384d44a4f8dd15ca4612fc57",
+  "file": "tune.json",
+  "run_folder": "20261112T230120Z-wp8-learn-tune",
+  "sha256": "4dbfa3841bd40ddb7623c0d2357dbe4423728f68db1aa125aeed2a0e56ca5e70"
+ },
+ "score": 4.904327411749049,
+ "settings": {
+  "learning_rate": 0.02,
+  "min_data_in_leaf": 100,
+  "num_leaves": 31,
+  "rounds": 1000
+ }
+}

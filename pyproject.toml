@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fleetreserve"
+version = "0.1.0.dev0"
+description = "Hourly reserve offer from a fleet of charging electric cars."
+requires-python = ">=3.12"
+# Pins. The lock file (uv.lock) holds the exact version and file hash of every package; the
+# ranges below only stop a later `uv lock --upgrade` from jumping a major version (a minor
+# version for 0.x packages). The default install is the project dependencies plus `dev`;
+# every other group is installed by name, for example `uv sync --frozen --group learn`.
+dependencies = [
+    "numpy>=2.5,<3",  # arrays; plan sections 2 to 6
+    "scipy>=1.18,<2",  # HiGHS linear programmes (section 13, LPs); statistics
+    "pandas>=3.1,<4",  # loaders and truth sets (section 3, WP2)
+]
+
+[dependency-groups]
+dev = [
+    # Section 4, T1 (WP4): "`flexitroid` matches (b)". Not on the package index; installed from
+    # its git repository at one commit (tool.uv.sources below). It brings its own dependencies
+    # into the default install: an optimisation modelling library with open-source solvers, and
+    # matplotlib.
+    "flexitroid",
+    "pytest",
+    "ruff",
+]
+# Section 7 (learning) and the forecast baselines of section 7; WP8, WP9.
+learn = [
+    "torch>=2.15,<3",  # hazard model and day-size net, MPS on Apple silicon (section 7)
+    "lightgbm>=4.7,<5",  # pooled LightGBM, CQR-GBM (section 7)
+    "scikit-learn>=1.9,<2",  # earlier GBM and population models; interface LightGBM and TabPFN use
+    "holidays>=0.108,<1",  # calendars input of the hazard model (section 7)
+    # Kaplan-Meier, Cox, Weibull AFT (section 7). Versions 0.30.1 and later cap pandas below 3;
+    # 0.30.0 does not, so the 0.30 line resolves to 0.30.0 beside pandas 3.
+    "lifelines>=0.30,<0.31",
+]
+# Chronos-2 and TabPFN v2 forecast baselines (section 7). Kept apart from `learn` because the
+# owner may cut them (section 13, cut 3). TabPFN v2 weights are chosen in code with
+# ModelVersion.V2; the package line 9 serves them with the current numpy, pandas and scipy.
+foundation = [
+    "chronos-forecasting>=2.3,<3",  # Chronos-2 is the 2.x line
+    "tabpfn>=9.2,<10",
+]
+# Section 8 (language-model step), WP7.
+language = ["anthropic>=2.8,<3"]
+# Section 13, WP16 (figures).
+figures = ["matplotlib>=3.11,<4"]
+# Section 10, ASA baseline: acnportal 0.3.3 as named there.
+# 0.3.3 imports pkg_resources, which setuptools 81 and later no longer ships, and does not
+# declare setuptools itself, so the group names it with that limit.
+baselines = [
+    "acnportal==0.3.3",
+    "setuptools<81",
+]
+
+[tool.uv]
+# Only these groups install without a flag, so `uv run --frozen` never needs PyTorch.
+default-groups = ["dev"]
+
+[tool.uv.sources]
+# Mukhi et al. (2026), MIT licence; the default branch's head when the install was approved.
+flexitroid = { git = "https://github.com/karanmukhi/flexitroid", rev = "098963567e6d8ca39b7b6dffebc6259b731f5dc3" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fleetreserve"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "NPY", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["error"]

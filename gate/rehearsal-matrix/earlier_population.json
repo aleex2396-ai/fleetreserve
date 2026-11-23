@@ -1,0 +1,210 @@
+{
+ "about": "Run matrix of the rehearsal on development units for the model earlier_population, written by fleetreserve.sealed_matrix from the kappa-choice results 20261119T082933Z-wp9-kappa-choice-six-earlier_population/kappa-choice.json by reading R2 (one kappa per model, the dial per site type): kappa 0.5, dials workplaces 0.005, Norway and Korea 0.03. Main reading of section 5 and the beside reading. Every shared value is the gate matrix's.",
+ "gate_units": [
+  "nrel-before-may-2019",
+  "nrel-from-may-2019",
+  "norway-development-pooled"
+ ],
+ "required_units": 2,
+ "n_calibration": 100,
+ "calibration_half_below": 200,
+ "split_seed": 1,
+ "rho": 0.0,
+ "two_way_budget_kwh": 5.0,
+ "audited_paths": "three fixed and five seeded vertex paths per day (audit_paths)",
+ "no_fit": "cap",
+ "small_fleet": "keep",
+ "reference": "other-days",
+ "min_cell": 20,
+ "shape_tolerance": 1e-06,
+ "zero_value_kwh": 1e-06,
+ "t5_tolerance_kwh": 1e-06,
+ "gate_rung": "one-way",
+ "report": {
+  "ceilings": [
+   "hindsight-free-decision-hour",
+   "best-causal"
+  ],
+  "ratio_rules": [
+   "all_units",
+   "all_share_passing_units",
+   "required_units_both"
+  ],
+  "tiers": [
+   "A",
+   "B"
+  ]
+ },
+ "configurations": [
+  {
+   "name": "main-k0.5-none-empirical",
+   "family": "main",
+   "kappa": 0.5,
+   "departure": "empirical",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": "main-k0.5-none-oracle",
+   "driver_risk": null
+  },
+  {
+   "name": "main-k0.5-none-oracle",
+   "family": "main",
+   "kappa": 0.5,
+   "departure": "oracle",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": null,
+   "driver_risk": null
+  },
+  {
+   "name": "main-k0.5-d0.005-empirical",
+   "family": "main",
+   "kappa": 0.5,
+   "departure": "empirical",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": "main-k0.5-d0.005-oracle",
+   "driver_risk": 0.005
+  },
+  {
+   "name": "main-k0.5-d0.005-oracle",
+   "family": "main",
+   "kappa": 0.5,
+   "departure": "oracle",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": null,
+   "driver_risk": 0.005
+  },
+  {
+   "name": "main-k0.5-d0.03-empirical",
+   "family": "main",
+   "kappa": 0.5,
+   "departure": "empirical",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": "main-k0.5-d0.03-oracle",
+   "driver_risk": 0.03
+  },
+  {
+   "name": "main-k0.5-d0.03-oracle",
+   "family": "main",
+   "kappa": 0.5,
+   "departure": "oracle",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": null,
+   "driver_risk": 0.03
+  },
+  {
+   "name": "beside-k0.5-d0.005-empirical",
+   "family": "beside",
+   "kappa": 0.5,
+   "departure": "empirical",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "hour-start",
+   "oracle_partner": "beside-k0.5-d0.005-oracle",
+   "driver_risk": 0.005
+  },
+  {
+   "name": "beside-k0.5-d0.005-oracle",
+   "family": "beside",
+   "kappa": 0.5,
+   "departure": "oracle",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "hour-start",
+   "oracle_partner": null,
+   "driver_risk": 0.005
+  },
+  {
+   "name": "beside-k0.5-d0.03-empirical",
+   "family": "beside",
+   "kappa": 0.5,
+   "departure": "empirical",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "hour-start",
+   "oracle_partner": "beside-k0.5-d0.03-oracle",
+   "driver_risk": 0.03
+  },
+  {
+   "name": "beside-k0.5-d0.03-oracle",
+   "family": "beside",
+   "kappa": 0.5,
+   "departure": "oracle",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "hour-start",
+   "oracle_partner": null,
+   "driver_risk": 0.03
+  }
+ ],
+ "sealed_choice": {
+  "reading": "R2",
+  "model": "earlier_population",
+  "kappa": 0.5,
+  "rho": 0.0,
+  "dials": {
+   "workplaces": 0.005,
+   "Norway and Korea": 0.03
+  },
+  "units": {
+   "workplaces": [
+    "nrel-before-may-2019",
+    "nrel-from-may-2019"
+   ],
+   "Norway and Korea": [
+    "norway-development-pooled"
+   ]
+  },
+  "headline": {
+   "workplaces": "main-k0.5-d0.005-empirical",
+   "Norway and Korea": "main-k0.5-d0.03-empirical"
+  },
+  "comparison": null,
+  "source": {
+   "run_folder": "20261119T082933Z-wp9-kappa-choice-six-earlier_population",
+   "results": "kappa-choice.json",
+   "sha256": "1fa692b7c6e39b43dd014761c6f269f97e457eb0c90f044d756b5f02351166e7",
+   "commit": "618e73e63d8da06bfd0f37a824e4c6ee84a28258"
+  }
+ }
+}

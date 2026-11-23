@@ -1,0 +1,17 @@
+{
+ "about": "The fortnight parity of JPL's 9/80 Fridays off (calendar_inputs.fortnight_parity), written by fleetreserve.nine_eighty_settings from the results of a recorded fleetreserve.nine_eighty_run on JPL's training days. Not edited by hand.",
+ "estimate": {
+  "fridays_0": 67,
+  "fridays_1": 58,
+  "mean_cars_0": 30.104477611940297,
+  "mean_cars_1": 7.844827586206897,
+  "parity": 1
+ },
+ "parity": 1,
+ "results": {
+  "commit": "874c7a48af6e8669a75f632d430c28a92a2526c2",
+  "file": "nine-eighty-phase.json",
+  "run_folder": "20261115T161924Z-wp8-nine-eighty-phase",
+  "sha256": "f4436d319fb285aa2b4f2782edcdf7338deb11921da5d6c50c64a08df8920d0a"
+ }
+}

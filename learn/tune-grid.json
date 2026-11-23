@@ -1,0 +1,6 @@
+{
+ "about": "Candidate settings of the pooled LightGBM departure model, read by fleetreserve.learn_tune (plan section 7, pooled LightGBM; section 13, WP8). Every combination of num_leaves, min_data_in_leaf and one (learning_rate, rounds) pair is a candidate: 4 x 4 x 3 = 48. The settings of models.lgbm (15 leaves, 20 rows in a leaf, learning rate 0.05, 200 rounds) are one of them. Fixed before any run on training data; the SHA-256 of this file is written into the results and into the settings file made from them.",
+ "num_leaves": [7, 15, 31, 63],
+ "min_data_in_leaf": [20, 50, 100, 200],
+ "learning_rate_and_rounds": [[0.05, 200], [0.05, 400], [0.02, 1000]]
+}
