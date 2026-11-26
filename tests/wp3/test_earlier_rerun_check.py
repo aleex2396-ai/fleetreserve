@@ -169,6 +169,21 @@ def test_a_failure_says_which_way_it_missed(repo, capsys):
     assert out.startswith("FAILED: outside the limit") and "measured 47 kWh" in out
 
 
+def test_the_outcome_line_names_the_run_folder_it_read(repo, capsys):
+    """Red when `check_number` drops `; run <folder name>` from the end of its outcome text: the
+    line then ends at `inclusive)` and names no run, whichever run the item read."""
+    old = rename(make_run(repo, {**GOOD, "perfect_knowledge_kwh": 45.6}), "20260101T000000Z")
+    new = rename(make_run(repo, {**GOOD, "perfect_knowledge_kwh": 50.0}), "20260102T000000Z")
+    capsys.readouterr()  # the recorder's own lines
+    assert run_check(repo, "kwh", "--run", str(old)) == 0
+    out = capsys.readouterr().out
+    assert out.startswith("within the limit: ") and out.strip().endswith(f"; run {old.name}")
+    assert run_check(repo, "kwh") == 1  # no --run: the newest, which fails
+    out = capsys.readouterr().out
+    assert out.startswith("FAILED: outside the limit: ")
+    assert out.strip().endswith(f"(limit 0.1, inclusive); run {new.name}"), out
+
+
 def test_each_item_reads_only_its_own_number(repo):
     make_run(repo, {**GOOD, "learned_share": 0.5})  # only the learned share is far off
     assert run_check(repo, "kwh") == 0

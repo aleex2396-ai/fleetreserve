@@ -44,7 +44,14 @@ Fields of one configuration (`configurations`, a non-empty list):
 - `energy_bounds`: "known" (rate and room known, only the departure forecast) or "empirical"
   (plan section 7's quantiles, `forecast_empirical` mode "empirical"). The project owner decided
   "known" on 16 Nov 2026 (plan section 7: in the main settings only the departure is forecast);
-  "empirical" stays in the matrix as a comparison, the side not chosen;
+  "empirical" stays in the matrix as a comparison, the side not chosen. "cautious"
+  (`forecast_empirical` mode `CAUTIOUS`) is the value of the forecast trial `forecast_energy`, a
+  trial made after the sealed run: as "empirical", but the rate and room bounds at level 0.05
+  whatever the configuration's level; no committed matrix of the plan uses it. "cautious-need" and
+  "cautious-all" (`forecast_empirical` modes `CAUTIOUS_NEED`, `CAUTIOUS_ALL`) are the two further
+  values of the second energy trial `forecast_energy_2`, made after the sealed run as well: the
+  need bound alone at level 0.05, and all three bounds at level 0.05; no committed matrix of the
+  plan uses them either;
 - `uncertifiable_car`: what happens to a car with an empty forecast set or no reference sample:
   "leave-unsteered" (the car charges as logged, is outside the box and loses nothing) or
   "day-abstains" (the whole day offers nothing). The project owner decided "leave-unsteered" on
@@ -94,7 +101,13 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from fleetreserve.driver_risk import DIALS
-from fleetreserve.forecast_empirical import KAPPAS, REFERENCES
+from fleetreserve.forecast_empirical import (
+    CAUTIOUS,
+    CAUTIOUS_ALL,
+    CAUTIOUS_NEED,
+    KAPPAS,
+    REFERENCES,
+)
 from fleetreserve.gate_stat import RATIO_RULES
 from fleetreserve.rungs import DEPARTURE_SEEN, RUNGS
 from fleetreserve.truth_build import TRAIN_UNITS
@@ -104,7 +117,10 @@ CEILINGS = ("hindsight-free-decision-hour", "best-causal")
 TIERS = ("A", "B")
 TIER_LABELS = {"A": "tier A (driver-protected)", "B": "tier B (deadline contract)"}
 DEPARTURES = ("empirical", "oracle")
-ENERGY_BOUNDS = ("known", "empirical")
+ENERGY_BOUNDS = ("known", "empirical", CAUTIOUS)
+# The values a matrix file may name: `ENERGY_BOUNDS` (the first energy trial's list, unchanged) and
+# the two values of the second energy trial `forecast_energy_2`.
+MATRIX_ENERGY_BOUNDS = (*ENERGY_BOUNDS, CAUTIOUS_NEED, CAUTIOUS_ALL)
 UNCERTIFIABLE = ("leave-unsteered", "day-abstains")
 SHAPE_RULES = ("largest-smallest-width", "any-optimal")
 DEPARTURE_FLOORS = ("as-planned", "floored")
@@ -299,7 +315,9 @@ def _configuration(entry, k: int) -> Configuration:
         family=_choice(entry["family"], FAMILIES, f"{where}: family"),
         kappa=float(kappa),
         departure=_choice(entry["departure"], DEPARTURES, f"{where}: departure"),
-        energy_bounds=_choice(entry["energy_bounds"], ENERGY_BOUNDS, f"{where}: energy_bounds"),
+        energy_bounds=_choice(
+            entry["energy_bounds"], MATRIX_ENERGY_BOUNDS, f"{where}: energy_bounds"
+        ),
         uncertifiable_car=_choice(
             entry["uncertifiable_car"], UNCERTIFIABLE, f"{where}: uncertifiable_car"
         ),

@@ -53,7 +53,15 @@ car `i` of `truth` at `kappa`:
 
 - energy modes (`forecast_empirical.MODES`): "known" takes the car's true rate, room and protected
   energy and reads only `d_hat`; "empirical" reads `r_hat`, `e_cap`, `e_need`; "user-rate" takes
-  the true rate and reads `e_cap`, `e_need`. A NaN in a column read gives no forecast (None);
+  the true rate and reads `e_cap`, `e_need`; "cautious" (`forecast_empirical.CAUTIOUS`, accepted
+  beside `MODES`, the forecast trial `forecast_energy`) reads `r_hat` and `e_cap` from the row of
+  the car at level `forecast_empirical.CAUTIOUS_LEVEL` and `d_hat` and `e_need` from the row at
+  `kappa`; a table without the row at that level raises `ValueError` (as for a missing car). A NaN
+  in a column read gives no forecast (None). "cautious-need" and "cautious-all"
+  (`forecast_empirical.CAUTIOUS_NEED`, `CAUTIOUS_ALL`, accepted beside the older modes, the
+  forecast trial `forecast_energy_2`) read `e_need` from the row at level `CAUTIOUS_LEVEL` (the 0.95
+  quantile); "cautious-all" reads `r_hat` and `e_cap` from that row too and "cautious-need" from the
+  row at `kappa`; `d_hat` is read at `kappa` in both;
 - oracle departure: `d_hat` is the car's true departure hour, as `EmpiricalForecaster` makes it;
   with "known" energy the table is not read at all (the oracle partner then does not depend on the
   model), otherwise the energy columns are read as above;
@@ -86,7 +94,15 @@ import numpy as np
 import pandas as pd
 
 from fleetreserve.day import MAX_SERVICE_HOURS, ForecastCar
-from fleetreserve.forecast_empirical import DEPARTURES, KAPPAS, MODES, WHAT_IF_KAPPAS
+from fleetreserve.forecast_empirical import (
+    CAUTIOUS_LEVEL,
+    DEPARTURES,
+    KAPPAS,
+    NEED_AT_FIXED_LEVEL,
+    RATE_CAP_AT_FIXED_LEVEL,
+    TRIAL_ENERGY_MODES,
+    WHAT_IF_KAPPAS,
+)
 
 KEY_COLUMNS = ("unit", "site", "date", "session_id")
 SURVIVAL_COLUMNS = tuple(f"survival_h{t}" for t in range(1, MAX_SERVICE_HOURS + 1))
@@ -211,8 +227,8 @@ class TableForecaster:
         self, truth, i: int, kappa: float, mode: str, departure: str = "empirical"
     ) -> ForecastCar | None:
         """Car `i`'s forecast at level `kappa`, or None when the table gives none."""
-        if mode not in MODES:
-            raise ValueError(f"mode must be one of {MODES}, got {mode!r}")
+        if mode not in TRIAL_ENERGY_MODES:
+            raise ValueError(f"mode must be one of {TRIAL_ENERGY_MODES}, got {mode!r}")
         if departure not in DEPARTURES:
             raise ValueError(f"departure must be one of {DEPARTURES}, got {departure!r}")
         true = truth.day.cars[i]
@@ -225,9 +241,11 @@ class TableForecaster:
             return None
         if mode == "known":
             return ForecastCar(d_hat, true.rate, true.room, true.need(rho))
-        rate = true.rate if mode == "user-rate" else self._value(row, "r_hat")
-        cap = self._value(row, "e_cap")
-        need = self._value(row, "e_need")
+        bounds = self._row(truth, i, CAUTIOUS_LEVEL) if mode in RATE_CAP_AT_FIXED_LEVEL else row
+        need_row = self._row(truth, i, CAUTIOUS_LEVEL) if mode in NEED_AT_FIXED_LEVEL else row
+        rate = true.rate if mode == "user-rate" else self._value(bounds, "r_hat")
+        cap = self._value(bounds, "e_cap")
+        need = self._value(need_row, "e_need")
         if any(math.isnan(v) for v in (rate, cap, need)):
             return None
         return ForecastCar(d_hat, rate, cap, need)

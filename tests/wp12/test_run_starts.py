@@ -23,6 +23,8 @@ sealed route is started by its own code at a made-up tag, up to its first read o
 5. The main model's sensitivity matrices at rho 0.1 and 0.2 that `sealed_matrix` writes (plan
    WP15): the start of a `learn_run` on each, on the nine held-out units, reaches its first read
    of data.
+6. The module text (reading T4) names every `--group` that a command of the committed run list
+   gives, in the form the list gives them.
 """
 
 import json
@@ -39,6 +41,7 @@ from fleetreserve import run_list, run_starts, sealed_route
 
 NINE = list(sealed_route.HELD_OUT_UNITS)
 TOP = Path(__file__).resolve().parents[2]
+LIST = TOP / "run-lists" / "run-list.json"
 ROUTE = [
     "--tables",
     "data/derived/development",
@@ -341,3 +344,24 @@ def test_the_checker_runs_the_starts(tmp_path, capsys, monkeypatch, splits):
     assert run_list.main([str(path), "--no-starts"]) == 0
     shown = capsys.readouterr().out.splitlines()[-2]
     assert shown == "starts: the starts not made (--no-starts)", shown
+
+
+def test_the_module_text_names_every_group_the_committed_lists_commands_give():
+    """Reading T4 of `run_starts` quotes the prefix of a step's command. Red when `--group
+    baselines` is struck from that quotation in the module text (the text then names `--group
+    learn` alone, as it did before this test), or when a command of the list gains a group the
+    text does not name."""
+    text = " ".join(run_starts.__doc__.split())
+    entries = json.loads(LIST.read_text())["entries"]
+    assert entries
+    groups, prefixes = set(), set()
+    for step in entries:
+        command = step["command"]
+        prefix = command[: command.index("python")]
+        prefixes.add(" ".join(prefix))
+        groups.update(prefix[i + 1] for i, word in enumerate(prefix) if word == "--group")
+    assert groups
+    for group in sorted(groups):
+        assert f"--group {group}" in text, group
+    for prefix in sorted(prefixes):
+        assert prefix in text, prefix

@@ -140,17 +140,22 @@ run's own cannot decide.
       3). [Alternative: only a pass at a resolvable step counts.] Kink, unresolved and tied
       comparisons count toward no direction's 100. The plan settles that fewer days with a pass do
       not satisfy it: T8 asks 100 distinct days with a passed comparison per direction (the
-      owner's decision of 18 November 2026). Below 100 in a direction the item answers 2 and
-      prints each direction's counts. [Alternative, not taken: 100 distinct days checked and
-      every direction passed at least once, under which one passed comparison per direction and
-      every other one unresolved would pass.]
+      owner's decision of 18 November 2026). Below 100 in a direction that some listed run
+      decides (W3c) the item answers 1 (the check ran and the requirement is not met) and prints
+      each direction's counts; a direction no listed run decides (W3c) is not that case.
+      [Alternative, not taken: 100 distinct days checked and every direction passed at least
+      once, under which one passed comparison per direction and every other one unresolved would
+      pass.]
   W3c. A field that is not deciding in a run (the departure under whole-hour forecast departures,
       written by the command in `not_applicable`) is not read from that run, a failure there
       included. In that direction the run's days are not applicable, unless another listed run
       decides the direction on the same day, and count toward no direction's 100. A direction is
       decided by the listed runs where it is deciding: one where it is not applicable never
       blocks it, so the fractional run's departure on 100 days is enough beside a whole-hour run;
-      a direction that is deciding in no listed run has no passed day, and the item answers 2.
+      a direction that is deciding in no listed run has no day with a deciding comparison, no
+      run decides it at all, and the item answers 2 (could not run); beside a direction that
+      some run decides with fewer than `T8_DAYS` passed days it answers 1, which wins over 2
+      (W3b).
   W3d. "One MPS batch timed": at least one run whose `batch_timing.mps` holds its seconds (on a
       machine without MPS the command writes "not available": could not run). "Tracking logged
       on development days": at least one run with a development unit
@@ -181,8 +186,11 @@ run's own cannot decide.
       listed cannot decide the item, and any later change of the list makes every listed run from
       an earlier commit stale, to be recorded again. [Alternative: the list read like the rest of
       the keep-list, so that a run seen first could be listed afterwards and decide.]
-  Exit: 0 every requirement met on verified runs; 1 a deciding comparison failed (this wins over
-  2); 2 otherwise.
+  Exit: 0 every requirement met on verified runs; 1 a deciding comparison failed, or, in a
+  direction that some run decides, fewer than `T8_DAYS` days with a passed comparison (either
+  wins over 2, also beside an MPS batch not timed, tracking not logged or a direction that no run
+  decides, which the last line then names too); 2 otherwise, including a direction that no
+  listed run decides (W3c).
 
 conformal. A decision rule, not a pass or a failure of the work package: per arm of conformal
 training (`ct-scale`, `ct-abstain`) the item decides "kept" or "not kept", exit 0 for a decision
@@ -1189,8 +1197,12 @@ def _t8_decide(reads: list[T8Read]) -> int:
     if not tracked:
         problems.append("no run logged the tracking of the certified value on a development unit")
     if problems:
-        print(f"COULD NOT RUN: {'; '.join(problems)}")
-        return COULD_NOT_RUN
+        # A direction that some run decides yet has under T8_DAYS passed days is a failure (1); one
+        # that no run decides at all is not (reading W3b and W3c), and 1 wins over 2.
+        failed = any(found and passed_days(found) < T8_DAYS for found in combined.values())
+        word, status = ("FAILED", FAILED) if failed else ("COULD NOT RUN", COULD_NOT_RUN)
+        print(f"{word}: {'; '.join(problems)}")
+        return status
     print(
         f"passed: T8's check: a passed comparison on at least {T8_DAYS} distinct days in each of "
         f"the {len(combined)} directions (soft and exact; departure, cap and need), no deciding "

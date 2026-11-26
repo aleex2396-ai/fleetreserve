@@ -127,7 +127,7 @@ def check_number(item: str, run: Path, manifest: dict) -> int:
     limit = exact(tolerance)
     text = (
         f"measured {show(measured)} {unit}, published {show(published)} {unit}, "
-        f"difference {show(gap)} (limit {show(limit)}, inclusive)"
+        f"difference {show(gap)} (limit {show(limit)}, inclusive); run {run.name}"
     )
     if gap <= limit:
         print(f"within the limit: {text}")

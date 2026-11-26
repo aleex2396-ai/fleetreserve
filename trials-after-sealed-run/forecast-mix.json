@@ -1,0 +1,64 @@
+{
+ "about": "Every setting of the forecast trial mix (command fleetreserve.forecast_mix), fixed before any result of it. Written on 24 November 2026, after held-out results were seen; development units only; fills no pre-registered slot and changes no held-out number. The command reads level, extra_level, splits, main_model, trial_model and the bars of reading from here, and refuses any other value unless --not-the-trial is given; the other entries record a fixed choice and its source, and tests check them against the code.",
+ "level": 0.5,
+ "extra_level": 0.4,
+ "extra_line": "the mix at level 0.4 against the main model at its own level 0.5, same units, splits, seeds, calibration rule and dial rule; always reported beside the main line, labelled 'extra line: the mix at level 0.4', judged by the same reading rule, never part of the one-line reading",
+ "splits": 200,
+ "main_model": "lgbm_tail",
+ "trial_model": "mix_tail_inputs",
+ "members": [
+  "lgbm_tail",
+  "hazard_tuned_inputs"
+ ],
+ "weights": "equal, one half each: the mean of the two forecast tables (fleetreserve.forecast_average); no weight is a setting, and none is searched or tuned",
+ "levels_averaged": "every level at which both members give a forecast table row (the levels of the run matrix up to the level above); a car or level missing from one table is refused, never filled",
+ "nan_rule": "a cell that is NaN in either member is NaN in the mix (a car with no usable forecast is left unsteered, plan section 5); the survival columns, which lgbm_tail leaves NaN, stay NaN, as for lgbm_tail alone",
+ "energy_bounds": "known, as in the main reading of gate/matrix.json: only the departure quantile is forecast",
+ "neural_member_seed": 0,
+ "neural_member_settings": "learn/hazard-tuned.json, not tuned again; one network, no seed average",
+ "fit_units": "the training units, truth_build.TRAIN_UNITS, for both members; no development unit is fitted on",
+ "units": "the gate units of gate/matrix.json: nrel-before-may-2019, nrel-from-may-2019, norway-development-pooled; any matrix with another unit is refused before a table is read",
+ "dial_family": "the dial family of gate/matrix.json at the level (dial_choice.family_at), the empirical departure, departures seen from the rounded-down hour, one-way re-solve rung",
+ "calibration": "per seeded split, dial_splits.score_split on the calibration days of that split; the grid of dial_splits.GRID; seeds 1 to splits",
+ "tiers": "A (slot loss at 0.10 and driver loss at 0.05) and B (slot loss alone), reported apart and never pooled",
+ "headline": "tier A, per unit, own_dial: each model at the dial with its largest mean tier A offer (dial_splits.pick_dial); same_dial and every dial are reported beside it; read by the rule of `reading`",
+ "paired_figures": "per split the difference trial minus main of the calibrated offer per counting test day; mean, standard error over the splits, p10, p50, p90, counts of splits more, equal, less, ratio of means",
+ "sources": {
+  "members": "docs/plan.md section 7, first bullet: the tree model lgbm_tail is the main model; the one neural variant is the one built on the plan's own inputs, hazard_tuned_inputs",
+  "neural_member_seed": "src/fleetreserve/models/hazard_tuned.py module text: the seed is its default (0); src/fleetreserve/hazard_settings.py, seed: int = 0",
+  "neural_member_settings": "docs/plan.md section 7: hazard_tuned_inputs keeps its present tuning settings, those of hazard_tuned, not tuned again",
+  "weights": "the trial is the average of the two learned models' forecasts (the owner's decision of 24 November 2026); equal weights is the one weighting that needs no search",
+  "nan_rule": "docs/plan.md section 5 (T2): a car with no usable forecast is left unsteered; src/fleetreserve/forecast_model.py: a model states no forecast with NaN",
+  "level": "docs/prior-looks.md, the six-level families: lgbm_tail has its largest mean tier A offer at level 0.5 at workplaces and at Norway and Korea; the trial is paired with the main model at the main model's level",
+  "splits": "docs/plan.md section 6: 200 seeded development splits",
+  "units": "gate/matrix.json, gate_units",
+  "dial_family": "docs/plan.md section 6: the dial is the value of section 2 with the largest mean calibrated Tier A re-solve offer over the 200 development splits, for each model by the same rule (section 7)",
+  "fit_units": "src/fleetreserve/learn_run.py check_model: a model is fitted on training units only and never on a scored unit",
+  "extra_level": "docs/prior-looks.md, the entry beginning \"The neural model at kappa 0.4 and 0.5, seeds 1 to 3\": the neural model did best at level 0.4 at workplaces on development data (Norway: 0.5), so level 0.5 alone may understate the mix; the one extra line at 0.4 is fixed now for that reason",
+  "reading": "the bars: docs/prior-looks.md, the entry beginning \"The neural model's seed test\" (see reading.bars_note); the rule was fixed before any result",
+  "overrides": "--kappa, --splits, --main-model, --trial-model, --extra-level, --settings and --matrix change the trial and are refused unless --not-the-trial is given, which labels the run as not the trial"
+ },
+ "reading": {
+  "rule": "see fleetreserve.forecast_mix_reading.RULE (tests check that the text printed is that text); judged: tier A, per judged unit, each arm at its own dial; share = paired mean difference of the offer (mix minus main) over the 200 splits as a share of the main arm's mean offer; 'shows a gain' only above the unit's bar, 'shows a loss' only below minus the bar, else 'no measurable difference'",
+  "one_line": {
+   "the mix helps": "a gain at one unit and no loss at the other",
+   "the mix hurts": "a loss at one unit and no gain at the other",
+   "otherwise": "no measurable difference; a mixed result is reported as mixed"
+  },
+  "one_line_taken_from": "the main level (0.5) only; the extra line never enters it",
+  "tier_B": "numbers only, labelled information, not read by the rule",
+  "no_other_sites": "No Dutch or Korean site is a development unit, so the trial cannot speak for them.",
+  "bars": {
+   "nrel-from-may-2019": {
+    "share": 0.08,
+    "source": "docs/prior-looks.md, the entry beginning \"The neural model's seed test\": \"The seed alone moves the offer by about 1.5 kWh (8%) at workplaces\". That figure is the neural model's range over three seeds (with the plan's own runs) at one level, kappa 0.3, while this trial's main line is at kappa 0.5 and its share is a mean over 200 splits that share days; the bar is an analogy and not this trial's measured noise. The rule was fixed before any result"
+   },
+   "norway-development-pooled": {
+    "share": 0.3,
+    "source": "docs/prior-looks.md, the entry beginning \"The neural model's seed test\": \"The seed alone moves the offer by about 1.5 kWh (8%) at workplaces and 0.5 kWh (30%) at Norway\". That figure is the neural model's range over three seeds (with the plan's own runs) at one level, kappa 0.3, while this trial's main line is at kappa 0.5 and its share is a mean over 200 splits that share days; the bar is an analogy and not this trial's measured noise. The rule was fixed before any result"
+   }
+  },
+  "bars_note": "The bars are the neural model's range over three seeds (with the plan's own runs) at one level, kappa 0.3 (docs/prior-looks.md, the entry beginning \"The neural model's seed test\"), applied here to a mean over 200 splits that share days at kappa 0.5 and 0.4; they are an analogy and not this trial's measured noise. The rule was fixed before any result.",
+  "judged_units": "nrel-from-may-2019 (the workplace unit) and norway-development-pooled; nrel-before-may-2019 is printed and not judged (it has no bar)"
+ }
+}

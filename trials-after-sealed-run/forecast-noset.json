@@ -1,0 +1,87 @@
+{
+ "about": "Every setting of the forecast trial noset (command fleetreserve.forecast_noset), fixed before any result of it. Written on 24 November 2026, after held-out results were seen; development units only; fills no pre-registered slot and changes no held-out number. APPROVED TO RUN by the owner's decision of 24 November 2026: the trial runs after the approved trials, on development data only, reported apart. The approval is read from this committed file only (a copy given with --settings cannot grant it). The command reads level, splits, neural_seeds, arms and the bars of reading from here, and refuses any other value unless --not-the-trial is given; the other entries record a fixed choice and its source, and tests check them against the code.",
+ "approved_to_run": true,
+ "level": 0.5,
+ "splits": 200,
+ "neural_seeds": [1, 2, 3],
+ "arms": {
+  "tail": "lgbm_tail",
+  "tuned": "hazard_tuned",
+  "inputs": "hazard_tuned_inputs",
+  "noset": "hazard_tuned_no_set"
+ },
+ "model_differences": {
+  "noset_against_tuned": "one difference: hazard_tuned_no_set is hazard_tuned with the set encoder off (src/fleetreserve/models/hazard_tuned_no_set.py: the same tuned settings file, settings replaced by tuned.hazard(**PARTS['no_set_encoder']), PARTS['no_set_encoder'] = {'set_encoder': False}, src/fleetreserve/hazard_parts.py); every other setting, the inputs, the fit units and the levels are hazard_tuned's",
+  "inputs_against_tuned": "one difference: hazard_tuned_inputs is hazard_tuned with fourteen extra input columns (EXTRA_INPUTS of src/fleetreserve/models/hazard_tuned_inputs.py, each given as a standardised value and a missing flag, model_inputs.InputsScaler) beside hazard_data.INPUT_COLUMNS; the same tuned settings file, the set encoder on",
+  "noset_against_inputs": "two differences: the set encoder is off in the no-encoder model, and the no-encoder model lacks the fourteen extra input columns of hazard_tuned_inputs",
+  "tail_against_the_neural_models": "many differences: lgbm_tail (src/fleetreserve/models/lgbm_tail.py) is LightGBM quantile boosters, one per level, on the feature columns of learn_features plus the lower-tail history of the user's earlier sessions; it is a different kind of model, not a variant of the neural ones",
+  "seed": "each neural model is run at seeds 1, 2 and 3 by dial_choice.with_fit_seed, which replaces only the seed of the model's settings; lgbm_tail has no seed option and runs once at its module's fixed seed"
+ },
+ "tail_seed": "none: lgbm_tail is run once, at the fixed seed of its own module (models.lgbm, SEED); the command gives it no seed option",
+ "question": "Is the neural departure model without its set encoder (hazard_tuned_no_set) better than the same model with it (hazard_tuned, the judged comparison, one difference), than the neural model the project reports (hazard_tuned_inputs) and than the main model (lgbm_tail), with the neural models run on three seeds, on the project's development rule for the driver-risk dial and, as a check, on a dial chosen from calibration days alone?",
+ "units": "the gate units of gate/matrix.json: nrel-before-may-2019 (reported, not judged), nrel-from-may-2019 and norway-development-pooled (judged); any matrix with another unit is refused before a table is read",
+ "judged_tier": "A (slot loss at 0.10 and driver loss at 0.05); tier B is reported as information and never read by the rule",
+ "fit_units": "the training units, truth_build.TRAIN_UNITS, for every model; no development unit is fitted on",
+ "dial_rules": {
+  "plan_rule": "THE JUDGED LINE. The project's standard development rule (docs/plan.md section 6; dial_splits.pick_dial, reached through site_dial_summary.by_dial): per run, unit and tier, the dial with the largest mean offer over the same 200 seeded splits, a difference of at most dial_splits.TIE kWh being a tie that goes to the smaller dial; each split's offer is that dial's offer with its scale calibrated on all of the split's calibration days (the 'by_dial' value of site_dial_whatif.split_arms). Applied identically to every arm and every seed (each seed of a neural arm has its own dial). This rule reads the test-day offers of the development units, for every arm alike, as every development figure of the project does; the bars of the reading apply to this line.",
+  "calibration_days_only": "THE CHECK LINE. Variant S1 of site_dial_whatif: per split, the split's calibration days are cut in two by a seeded draw that looks at no loss (site_dial_whatif.pick_part); the dial with the largest calibrated offer on the choosing half is taken (site_dial_whatif.choose, calibrated_offer); its scale is calibrated on the other half alone and scored on the split's test days (dial_splits.score_split). The dial is a function of the choosing half only; no test day's outcome reaches it. No bar applies and no verdict is formed on this line: only the sign and the size of each difference are reported, beside the judged line.",
+  "disagreement": "Only a check-line difference of the OPPOSITE sign to a gain or a loss that the judged line shows at a judged unit (a gain with a negative check difference, a loss with a positive one) makes the one-line reading of that comparison 'mixed': a gain that only the rule that reads the test days shows may come from the selection of the dial on those days. A check-line difference of exactly 0 (within dial_splits.TIE kWh of 0, for example every arm offers 0 under the stricter rule at the unit) or an undefined one (both arms offer 0, or the check did not run or has no cell) is SILENT: it neither confirms nor contradicts, the judged line's word stands, and the output says for that unit 'check line silent (difference 0)' or 'check line silent (no figure for the check line)'. Where the judged word is 'no measurable difference' the check line cannot change it; its sign and size are reported beside it. The output counts, per comparison, the judged units at which the check line was silent (silent_count, silent_units).",
+  "one_measurement": "Both lines are read from the one measurement of each run: site_dial_whatif.run stores, per split, the arm S1 and the offer of every dial calibrated on all the calibration days (by_dial). The judged line needs no further fit and no further evaluation, so the run is not longer than a run of the check line alone."
+ },
+ "fallback_dial": "the smallest dial of the family (dials[0] of dial_choice.find_family): site_dial_whatif asks for a fixed dial that S1 (the check line) takes only when no dial has an offer above 0 on the choosing half and that breaks a tie to the smaller dial in any case; fixing it as the smallest dial reads no outcome. The judged line does not use it.",
+ "level_and_family": "level 0.5, the dial family of gate/matrix.json at that level (dial_choice.family_at), the empirical departure, departures seen from the rounded-down hour, the one-way re-solve rung, energy bounds known",
+ "calibration": "per seeded split, dial_splits.score_split; the grid dial_splits.GRID; the same 200 splits (seeds 1 to 200, made by dial_choice.split_indices) for every run, so a split is the same calibration days and test days for every run; comparisons are paired by split",
+ "pairing": "per split, the difference of two arms' offers per counting test day on each line; an arm of three seeds enters with, per split, the mean of its three seeds' offers (forecast_noset_pairs); figures by forecast_mix_pairs.paired_cell",
+ "seed_spread": "for each arm, unit, tier and line, the least and the greatest of the seed figures are reported (seed_min, seed_max); the three seeds of this trial measure the spread of this trial roughly",
+ "sources": {
+  "arms": "docs/plan.md section 7: lgbm_tail is the main model; hazard_tuned_inputs is the one neural variant reported beside it; hazard_tuned_no_set is the ablation 'no set encoder' of section 7 (src/fleetreserve/models/hazard_tuned_no_set.py); hazard_tuned is the model the ablation removes the encoder from (src/fleetreserve/models/hazard_tuned.py)",
+  "neural_seeds": "docs/prior-looks.md, the entry beginning \"The neural model's seed test\" and the entry beginning \"The neural model at kappa 0.4 and 0.5, seeds 1 to 3\": the neural model's seed tests used seeds 1 to 3",
+  "level": "docs/prior-looks.md, the six-level families: lgbm_tail has its largest mean tier A offer at level 0.5; the sibling trials (mix, local) use 0.5",
+  "splits": "docs/plan.md section 6: 200 seeded development splits",
+  "units": "gate/matrix.json, gate_units; the judged units are those with a bar",
+  "fit_units": "src/fleetreserve/learn_run.py check_model: a model is fitted on training units only and never on a scored unit",
+  "plan_rule": "docs/plan.md section 6: the dial is the value of section 2 with the largest mean calibrated Tier A re-solve offer over the 200 development splits, for each model by the same rule (section 7); src/fleetreserve/dial_splits.py pick_dial",
+  "calibration_days_only": "src/fleetreserve/site_dial_whatif.py module text, S1 ('the dial is a function of the choosing part only'); the choice rule, reading D3; docs/prior-looks.md, the entry beginning \"The site dial (the third attack of the owner's decision of 16 Nov\": under S1 an earlier look at level 0.3 gave offers of about half the fixed dial's (lgbm_tail, workplaces 9.39 against 17.08, Norway 0.50 against 2.24), which is why this line is a check and carries no bar",
+  "earlier_look": "docs/prior-looks.md, the entry beginning \"Dial-choice runs: as in the dial-choice runs at b9dd078\" (hazard_tuned_no_set 20.21 and 3.19 kWh/day at nrel-from-may-2019 and norway-development-pooled by the plan's rule at one seed) and the entry beginning \"at a8de44f: `20261113T190537Z-wp2-truth`\" (hazard_tuned 17.26 and 2.73, and, in its last sentence, lgbm_tail 17.08 and 2.24); the reason for this trial. One seed proves nothing (the entry beginning \"The neural model's seed test\").",
+  "reading": "the bars: docs/prior-looks.md, the entry beginning \"The neural model's seed test\"; the rule: the mix trial's reading module (forecast_mix_reading) for the words, an audit of 24 November 2026 for the seed condition, a review of 24 November 2026 for the two lines and the three comparisons, fixed before any result",
+  "overrides": "--kappa, --splits, --seeds, --model-tail, --model-tuned, --model-inputs, --model-noset, --settings and --matrix change the trial and are refused unless --not-the-trial is given, which labels the run as not the trial; --tables and --truth-run change the data read and are reported, not refused"
+ },
+ "reading": {
+  "rule": "see fleetreserve.forecast_noset_reading.RULE (tests check that the text printed is that text); judged: tier A, per judged unit, the judged line (the plan's development rule); an arm's figure is its mean offer over the 200 splits, for a neural model the mean of its three seeds' figures; share = paired mean difference (no-encoder arm minus the comparison arm) over the 200 splits as a share of the comparison arm's mean offer",
+  "comparisons": {
+   "against_tuned": "the no-encoder model against hazard_tuned (mean over its three seeds): the JUDGED comparison, one difference (the set encoder)",
+   "against_inputs": "the no-encoder model against hazard_tuned_inputs (mean over its three seeds), the neural model the project reports: two differences (the set encoder and the extra input columns)",
+   "against_tail": "the no-encoder model against lgbm_tail, the main model: a different kind of model"
+  },
+  "words": "as fleetreserve.forecast_mix_reading: 'shows a gain' only above the unit's bar, 'shows a loss' only below minus the bar, else 'no measurable difference'; with the seed condition below",
+  "seed_condition": "a gain is shown only if the share is above the bar AND every one of the three no-encoder seeds' figures at the unit is above every one of the comparison arm's seed figures (for lgbm_tail, its one figure); a loss is shown only if the share is below minus the bar AND every no-encoder seed's figure is below every comparison seed figure; otherwise 'no measurable difference'",
+  "one_line_per_comparison": {
+   "better": "a gain at one judged unit and no loss at the other",
+   "worse": "a loss at one judged unit and no gain at the other",
+   "mixed": "a gain at one judged unit and a loss at the other, or, at a judged unit, a check-line difference of the opposite sign to a gain or a loss of the judged line (a silent check line, with a difference of exactly 0 or none, never makes a line mixed)",
+   "no measurable difference": "neither a gain nor a loss at either judged unit (the check line cannot change this)"
+  },
+  "one_line_overall": {
+   "better than all three": "all three comparisons read 'better'",
+   "worse than all three": "all three comparisons read 'worse'",
+   "no clear ordering": "any other case"
+  },
+  "judged_comparison": "against_tuned; its line is the one that answers the question; the lines against hazard_tuned_inputs and against lgbm_tail are read by the same rule and named for what they are",
+  "failed_arm": "a run that is refused or fails, or a judged unit that an arm could not measure, gives the word NOT_READ for the units and comparisons that need it; an overall line with a NOT_READ part is NOT_READ",
+  "tier_B": "numbers only, labelled information, not read by the rule",
+  "extra_information": "the reported neural model against lgbm_tail is printed as information and never read",
+  "no_other_sites": "No Dutch or Korean site is a development unit, so the trial cannot speak for them.",
+  "no_further_arm": "no arm, level, seed or setting is added after results are seen",
+  "bars": {
+   "nrel-from-may-2019": {
+    "share": 0.08,
+    "source": "docs/prior-looks.md, the entry beginning \"The neural model's seed test\": \"The seed alone moves the offer by about 1.5 kWh (8%) at workplaces\". That figure is the neural model's range over three seeds (with the plan's own runs) at one level, kappa 0.3, taken at the best dial of each fit; this trial's judged line is at kappa 0.5 and its share is a mean over 200 splits that share days; the bar is an analogy and not this trial's measured noise (the spread of this trial's seeds is reported beside it). It applies to the judged line only"
+   },
+   "norway-development-pooled": {
+    "share": 0.3,
+    "source": "docs/prior-looks.md, the entry beginning \"The neural model's seed test\": \"0.5 kWh (30%) at Norway\". That figure is the neural model's range over three seeds (with the plan's own runs) at one level, kappa 0.3, taken at the best dial of each fit; this trial's judged line is at kappa 0.5 and its share is a mean over 200 splits that share days; the bar is an analogy and not this trial's measured noise (the spread of this trial's seeds is reported beside it). It applies to the judged line only"
+   }
+  },
+  "judged_units": "nrel-from-may-2019 (the workplace unit) and norway-development-pooled; nrel-before-may-2019 is printed and not judged (it has no bar)"
+ }
+}

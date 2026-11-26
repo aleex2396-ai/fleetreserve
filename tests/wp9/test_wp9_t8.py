@@ -37,18 +37,20 @@ unresolved or tied elsewhere. Combined: 100 passed days in every direction, exac
    failed, an MPS batch timed and the tracking logged on development units: passed (0), with the
    per-direction counts and the units they come from; the departure comes from the fractional run
    alone, the rounded run's not-applicable departure does not block it.
-2. A deciding comparison failed: failed (1), also from a run that ended with exit 1 or 2 and also
+2. Failed (1): a deciding comparison failed, also from a run that ended with exit 1 or 2 and also
    when the other listed run cannot be read; a failed comparison in a direction that is not
-   deciding in its run is not read.
-3. Could not run (2): fewer than 100 days with a passed comparison in a direction, with the
-   counts and a line that the plan settles it (the module text's runs; one passed
-   comparison per direction and every other one unresolved; the same with 99 kinks; the two runs
-   on 50 different days each, so the departure has 50; 80 days passed in two runs, 160 checks; a
-   direction deciding in no run); no run; a stale run; a truth build not verified at the commit;
+   deciding in its run is not read. Also fewer than 100 days with a passed comparison in a
+   direction that some run decides, with the counts and a line that the plan settles it (the
+   module text's runs; one passed comparison per direction and every other one unresolved; the
+   same with 99 kinks; the two runs on 50 different days each, so the departure has 50; 80 days
+   passed in two runs, 160 checks), also beside a problem that alone would be a could not run
+   (no MPS batch timed), and also beside a direction that no run decides (1 wins over 2).
+3. Could not run (2): no run; a stale run; a truth build not verified at the commit;
    a trial (fewer days per unit) or a partial run (fewer units); a run of another command or
    configuration; no MPS batch timed; no tracking on a development unit; a run that ended with
    exit 1 and shows no failed comparison; recorded counts that do not add up; an unexpected
-   error.
+   error; and a direction that no listed run decides (0 days, with or without a missing MPS
+   batch), when no other direction is short.
 4. The newest run under each label is the one read.
 """
 
@@ -352,10 +354,10 @@ def test_a_failure_wins_over_a_run_that_cannot_be_read(repo, monkeypatch, capsys
 # --- 3. could not run -----------------------------------------------------------------------------
 
 
-def test_fewer_than_100_passed_days_in_a_direction_could_not_run(repo, monkeypatch, capsys):
+def test_fewer_than_100_passed_days_in_a_direction_fails(repo, monkeypatch, capsys):
     one, two = both(repo, monkeypatch)
     code, lines = run_item(repo, "t8", capsys)
-    assert code == 2
+    assert code == 1
     assert lines[2:4] == [
         f"  {one.name}: model lgbm_tail, configuration main-k0.3-empirical, deciding departure, "
         f"cap, need; 80 days checked ({NB} 5, {NF} 45, {NP} 30)",
@@ -380,13 +382,13 @@ def test_fewer_than_100_passed_days_in_a_direction_could_not_run(repo, monkeypat
     )
     assert lines[12] == PLAN_READING
     assert lines[-1] == (
-        "COULD NOT RUN: fewer than 100 days with a passed comparison in soft departure 10, soft "
+        "FAILED: fewer than 100 days with a passed comparison in soft departure 10, soft "
         "need 50, exact departure 10, exact cap 70, exact need 65"
     )
 
 
 @pytest.mark.parametrize("other", ("unresolved", "kink"))
-def test_one_passed_comparison_per_direction_could_not_run(repo, monkeypatch, capsys, other):
+def test_one_passed_comparison_per_direction_fails(repo, monkeypatch, capsys, other):
     def once(unit, k, kind, field):  # every direction passed on NF's first day only
         return "resolvable" if (unit, k) == (NF, 0) else other
 
@@ -396,19 +398,19 @@ def test_one_passed_comparison_per_direction_could_not_run(repo, monkeypatch, ca
         assert document["passed"]  # each run's own rule: one resolvable comparison per field
         check_run(repo, monkeypatch, label, document)
     code, lines = run_item(repo, "t8", capsys)
-    assert code == 2
+    assert code == 1
     if other == "kink":
         assert lines[6] == _line("soft cap", 1, 1, f"{NF} 1", kink=99)
     else:
         assert lines[6] == _line("soft cap", 1, 1, f"{NF} 1", 0, 99, f"{NB} 5, {NF} 64, {NP} 30")
     assert lines[12] == PLAN_READING
     assert lines[-1] == (
-        "COULD NOT RUN: fewer than 100 days with a passed comparison in soft departure 1, soft "
+        "FAILED: fewer than 100 days with a passed comparison in soft departure 1, soft "
         "cap 1, soft need 1, exact departure 1, exact cap 1, exact need 1"
     )
 
 
-def test_two_runs_on_50_different_days_could_not_run(repo, monkeypatch, capsys):
+def test_two_runs_on_50_different_days_fails(repo, monkeypatch, capsys):
     first = {NB: ALL[NB][:3], NF: ALL[NF][:32], NP: ALL[NP][:15]}  # 50 days
     second = {NB: ALL[NB][3:], NF: ALL[NF][32:], NP: ALL[NP][15:]}  # the 50 others
 
@@ -419,12 +421,12 @@ def test_two_runs_on_50_different_days_could_not_run(repo, monkeypatch, capsys):
     check_run(repo, monkeypatch, FRACTIONAL, soft(name, FRACTIONAL, outcome=everything, days=first))
     check_run(repo, monkeypatch, ROUNDED, soft(name, ROUNDED, outcome=everything, days=second))
     code, lines = run_item(repo, "t8", capsys)
-    assert code == 2
+    assert code == 1
     assert lines[4].startswith("  days checked: 100 distinct days in 100 checks")
     assert lines[5] == _line("soft departure", 50, 50, f"{NB} 3, {NF} 32, {NP} 15", na=50)
     assert lines[6] == _line("soft cap", 100, 100, f"{NB} 5, {NF} 65, {NP} 30")
     assert lines[-1] == (
-        "COULD NOT RUN: fewer than 100 days with a passed comparison in soft departure 50, exact "
+        "FAILED: fewer than 100 days with a passed comparison in soft departure 50, exact "
         "departure 50"
     )
 
@@ -437,10 +439,10 @@ def test_a_day_passed_in_two_runs_counts_once(repo, monkeypatch, capsys):
     for label in (FRACTIONAL, ROUNDED):  # the same 80 days in both
         check_run(repo, monkeypatch, label, soft(name, label, outcome=everything, days=DAYS))
     code, lines = run_item(repo, "t8", capsys)
-    assert code == 2
+    assert code == 1
     assert lines[4].startswith("  days checked: 80 distinct days in 160 checks")
     assert lines[-1] == (
-        "COULD NOT RUN: fewer than 100 days with a passed comparison in "
+        "FAILED: fewer than 100 days with a passed comparison in "
         + ", ".join(f"{direction} 80" for direction in DIRECTIONS)
     )
 
@@ -453,6 +455,57 @@ def test_a_direction_deciding_in_no_run_could_not_run(repo, monkeypatch, capsys)
     assert lines[-1] == (
         "COULD NOT RUN: fewer than 100 days with a passed comparison in soft departure 0 "
         "(deciding in no run), exact departure 0 (deciding in no run)"
+    )
+
+
+def test_a_direction_deciding_in_no_run_beside_no_mps_batch_could_not_run_and_names_both(
+    repo, monkeypatch, capsys
+):
+    both_passing(repo, monkeypatch, deciding=["cap", "need"], mps=False)
+    code, lines = run_item(repo, "t8", capsys)
+    assert code == 2
+    assert lines[-1] == (
+        "COULD NOT RUN: fewer than 100 days with a passed comparison in soft departure 0 "
+        "(deciding in no run), exact departure 0 (deciding in no run); no run timed an MPS "
+        "batch (MPS not available)"
+    )
+
+
+def test_a_direction_deciding_in_no_run_beside_a_short_one_fails_and_names_both(
+    repo, monkeypatch, capsys
+):
+    name = truth(repo, monkeypatch)
+    for label in (FRACTIONAL, ROUNDED):  # departure decides in neither run; 80 days in the others
+        document = soft(
+            name,
+            label,
+            outcome=lambda *_: "resolvable",
+            days=DAYS,
+            deciding=["cap", "need"],
+        )
+        check_run(repo, monkeypatch, label, document)
+    code, lines = run_item(repo, "t8", capsys)
+    assert code == 1  # 1 wins over 2 (the tool's own rule, W3b and the Exit line)
+    assert lines[-1] == (
+        "FAILED: fewer than 100 days with a passed comparison in soft departure 0 (deciding in "
+        "no run), soft cap 80, soft need 80, exact departure 0 (deciding in no run), exact cap "
+        "80, exact need 80"
+    )
+
+
+def test_fewer_than_100_passed_days_beside_no_mps_batch_fails_and_names_both(
+    repo, monkeypatch, capsys
+):
+    name = truth(repo, monkeypatch)
+    for label in (FRACTIONAL, ROUNDED):  # the same 80 days in both, no MPS batch timed
+        document = soft(name, label, outcome=lambda *_: "resolvable", days=DAYS, mps=False)
+        check_run(repo, monkeypatch, label, document)
+    code, lines = run_item(repo, "t8", capsys)
+    assert code == 1
+    assert lines[-1] == (
+        "FAILED: fewer than 100 days with a passed comparison in "
+        + ", ".join(f"{direction} 80" for direction in DIRECTIONS)
+        + "; no run timed an MPS batch (MPS not available)"
     )
 
 

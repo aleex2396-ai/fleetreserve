@@ -1,0 +1,28 @@
+{
+ "about": "Settings of the local-refit forecast trial (module fleetreserve.forecast_local), fixed in this file before any result and made on 24 November 2026, after held-out results were seen. It fills no pre-registered slot and changes no held-out number. The trial is the command run with no option; no option sets one value below, and the results record this file's name and hash. Both refit arms are always run and reported.",
+ "model": "lgbm_tail",
+ "kappa": 0.5,
+ "dial": 0.02,
+ "local_days": 56,
+ "splits": 200,
+ "units": [
+  "nrel-before-may-2019",
+  "nrel-from-may-2019",
+  "norway-development-pooled"
+ ],
+ "refits": [
+  "unweighted-pool",
+  "equal-mass"
+ ],
+ "reading": {
+  "judged": "tier A, per unit and per refit arm: the paired mean difference of the offer (arm minus main) over the 200 splits, as a share of the main arm's mean offer",
+  "noise_bar_share": {
+   "nrel-from-may-2019": 0.08,
+   "norway-development-pooled": 0.3
+  },
+  "noise_bar_source": "docs/prior-looks.md, the entry that begins with the words \"The neural model's seed test\" (the figures \"(8%)\" and \"(30%)\"): the seed alone moves the offer by about 8% at workplaces and 30% at Norway; the bar of the workplace unit nrel-from-may-2019 is 8% and that of the pooled Norwegian unit is 30%. The bars are the neural model's range over three seeds (with the plan's own runs) at one level, kappa 0.3. The refitted tree model has one fixed seed, so the bars are an analogy and not this trial's measured noise; at the pooled Norwegian unit a difference of up to 30% therefore reads no measurable difference",
+  "tier_b": "the four cells of tier B are printed as numbers, labelled information, and are not judged",
+  "one_line": "the refit helps only if at least one arm shows a gain at a unit and no arm shows a loss at any unit; the refit hurts if any arm shows a loss and none a gain; otherwise no measurable difference, and a mixed result is reported as mixed; the line is not read, with the reason stated, when a unit that has a bar in this file has no judged cell (left out for too few days, failed or not run)",
+  "limits": "the 200 splits share the unit's days, so the standard error over splits understates the uncertainty, and the trial cannot speak for the Dutch or Korean sites, none of which is a development unit; no arm is added after a result is seen"
+ }
+}

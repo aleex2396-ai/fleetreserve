@@ -25,6 +25,7 @@ in a `LayoutError` with its message or in a stated result; any other error as a 
 naming its type only, interruptions unchanged; and the route through the gated opener.
 """
 
+import re
 import subprocess
 import sys
 from datetime import date
@@ -46,6 +47,22 @@ def _rows_not_units(monkeypatch):
     on its own in the `_units` test file of the loader, which reads a file of every unit with the
     check on."""
     monkeypatch.setattr(load_korea, "require_portfolios", lambda sessions, dropped: None)
+
+
+# What the first fix added to a refusal's text (reading K16): the shapes of the fields that fail,
+# the layout of the first lines, the counts of two kinds of rows, the encoding tried.
+ADDED = (
+    r"(; field shapes: .*"
+    r"|; first-line fields as found .*"
+    r"|: \d+ rows with no plug-in time, \d+ rows with no session id"
+    r"| \(utf-8-sig tried; .*\)"
+    r"| \(the header has \d+ fields\))?"
+)
+
+
+def refused_as(error, expected: str) -> None:
+    """The refusal text is `expected`, with at most what the first fix adds after it."""
+    assert re.fullmatch(re.escape(expected) + ADDED, str(error), flags=re.S), str(error)
 
 
 R = korea_row
@@ -314,7 +331,7 @@ def test_k5_the_joined_day_and_time_are_read_by_the_datetime_rules():
     ):
         with pytest.raises(LayoutError) as refused:
             load(**fields)
-        assert str(refused.value) == message
+        refused_as(refused.value, message)
     for fields in ({"EndTime": None}, {"EndDay": None}):
         sessions, dropped = load(**fields)
         assert list(sessions["session_id"]) == ["K1"]
@@ -346,19 +363,22 @@ def test_k14_a_one_digit_hour_in_a_time_column_is_read_with_a_leading_zero():
         load_korea.from_bytes(korea_csv(agree)),
         load_korea.from_bytes(korea_csv(agree, header=READ)),
     )
-    # the datetime column keeps the paper's form: no one-digit hour there
-    with pytest.raises(LayoutError) as refused:
-        load_korea.from_bytes(korea_csv([_one(StartDatetime="2022-06-01 8:00:00")]))
-    assert str(refused.value) == "Korea StartDatetime: 1 times cannot be read"
+    # the datetime column's hour of one digit is completed the same way (reading K17), so it
+    # agrees with the day and time columns
+    _same(
+        load_korea.from_bytes(korea_csv([_one(StartDatetime="2022-06-01 8:00:00")])),
+        load_korea.from_bytes(korea_csv([_one()])),
+    )
 
 
 def test_k13_both_forms_of_a_side_are_compared_and_a_disagreement_refuses_the_set():
-    # agreeing forms give the table of the datetime columns alone
+    # agreeing forms give the table of the datetime columns alone (the cross-check passes at a
+    # difference of less than 60 seconds: test_load_korea_real_layout.py)
     _same(
         load_korea.from_bytes(korea_csv(ROWS)),
         load_korea.from_bytes(korea_csv(ROWS, header=READ)),
     )
-    later = "2022-06-01 08:00:01"
+    later = "2022-06-01 08:01:00"  # 60 seconds: the cross-check passes within 60 (reading K13)
     cases = [
         # (rows, message): each count is the number of rows whose two forms differ
         (
@@ -370,7 +390,7 @@ def test_k13_both_forms_of_a_side_are_compared_and_a_disagreement_refuses_the_se
             "Korea StartDatetime and StartDay and StartTime: 1 row disagrees",
         ),
         (
-            [_one(EndTime="17:00:01"), _one(ChargingsessionID="K2"), _one(EndDay="2022-06-02")],
+            [_one(EndTime="17:01:00"), _one(ChargingsessionID="K2"), _one(EndDay="2022-06-02")],
             "Korea EndDatetime and EndDay and EndTime: 2 rows disagree",
         ),
         # one form missing and the other present is a disagreement, on either side of it
@@ -398,7 +418,7 @@ def test_k13_both_forms_of_a_side_are_compared_and_a_disagreement_refuses_the_se
     for rows, message in cases:
         with pytest.raises(LayoutError) as refused:
             load_korea.from_bytes(korea_csv(rows))
-        assert str(refused.value) == message
+        refused_as(refused.value, message)
     # both forms missing agree: the row is dropped as before
     sessions, dropped = load_korea.from_bytes(
         korea_csv([_one(), _one(ChargingsessionID="K2", EndDatetime=None, EndDay=None)])
@@ -442,7 +462,7 @@ def test_k5_a_side_with_neither_its_datetime_nor_both_its_day_and_time_is_refuse
     header = tuple(n for n in KOREA_HEADER if n not in dropped)
     with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(korea_csv(ROWS, header=header))
-    assert str(refused.value) == LACKS
+    refused_as(refused.value, LACKS)
 
 
 def test_k1_the_paper_misspelling_of_the_start_column_gives_the_same_table():
@@ -462,10 +482,10 @@ def test_k1_both_spellings_of_the_start_column_are_refused():
 
 SPLIT = (
     "Korea file: a row cannot be split under the header (more fields than the header, or a "
-    "quote never closed)"
+    "quote never closed; the header has 16 fields)"
 )
 LACKS = (
-    "Korea file lacks columns: no separator gives ChargingsessionID, UserID, ChargerID, "
+    "Korea file lacks columns: no separator gives UserID, ChargerID, "
     "Location, ChargerType, Demand, a start (StartDatetime or SrartDatetime, or StartDay and "
     "StartTime) and an end (EndDatetime, or EndDay and EndTime)"
 )
@@ -474,7 +494,6 @@ LACKS = (
 @pytest.mark.parametrize(
     "name",
     [
-        "ChargingsessionID",
         "UserID",
         "ChargerID",
         "Location",
@@ -486,7 +505,6 @@ LACKS = (
 )
 def test_k1_a_missing_column_read_is_refused_with_the_names_wanted(name):
     assert load_korea.REQUIRED == (
-        "ChargingsessionID",
         "UserID",
         "ChargerID",
         "Location",
@@ -498,7 +516,7 @@ def test_k1_a_missing_column_read_is_refused_with_the_names_wanted(name):
     header = tuple(column for column in KOREA_HEADER if column not in (name, *DAY_TIME))
     with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(korea_csv(ROWS, header=header))
-    assert str(refused.value) == LACKS
+    refused_as(refused.value, LACKS)
 
 
 def test_k1_columns_are_found_by_name_in_any_order_in_any_letter_case_and_with_spaces():
@@ -604,16 +622,18 @@ def test_k2_only_the_four_stated_markers_are_missing():
 @pytest.mark.parametrize("codec", ["cp949", "euc-kr", "utf-16"])
 def test_k2_another_encoding_is_refused(codec):
     content = korea_csv([_one()]).decode("utf-8").replace("Apartment", "아파트").encode(codec)
-    with pytest.raises(LayoutError, match="^Korea file is not UTF-8 text$"):
+    with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(content)
+    refused_as(refused.value, "Korea file is not UTF-8 text")
 
 
 def test_k2_rows_with_more_fields_than_the_header_are_refused():
     plain = korea_csv([_one(), _one(ChargingsessionID="K2")])
     every = plain.replace(b"\n", b",extra\n").replace(b",extra\n", b"\n", 1)
     some = plain.rstrip(b"\n") + b",extra\n"
-    with pytest.raises(LayoutError, match="^Korea file: rows hold more fields than the header$"):
+    with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(every)
+    refused_as(refused.value, "Korea file: rows hold more fields than the header")
     with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(some)
     assert str(refused.value) == SPLIT
@@ -661,12 +681,16 @@ def test_k3_a_value_outside_the_location_types_is_refused_by_count_alone(values,
     file = [_one(), *(_one(v, ChargingsessionID=f"X{n}") for n, v in enumerate(values))]
     with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(korea_csv(file))
-    assert str(refused.value) == (
+    refused_as(
+        refused.value,
         f"Korea Location: {rows} rows hold no location type of the paper ({distinct} distinct "
-        "values)"
+        "values)",
     )
     for value in values:
-        assert value is None or value not in str(refused.value)
+        # a value of digits and punctuation only is told by its shape, so it is looked for only
+        # when it holds a letter (the new test file looks for distinctive values)
+        has_letter = value is not None and any(char.isalpha() for char in value)
+        assert not has_letter or value not in str(refused.value)
 
 
 @pytest.mark.parametrize(
@@ -691,23 +715,24 @@ def test_k4_the_charger_type_under_semicolon_with_a_decimal_comma():
 @pytest.mark.parametrize("written", ["2", "-1", "0.5", "fast", "slow", "", "True", '"1,0"', "inf"])
 def test_k4_another_charger_type_is_refused(written):
     rows = [_one(), _one(ChargingsessionID="K2", ChargerType=written)]
-    with pytest.raises(LayoutError, match="^Korea ChargerType: 1 values are neither 0 nor 1$"):
+    with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(korea_csv(rows))
+    refused_as(refused.value, "Korea ChargerType: 1 values are neither 0 nor 1")
 
 
+# The forms with an hour of one digit and with no seconds (reading K17) are read; see
+# `test_load_korea_real_layout.py`.
 @pytest.mark.parametrize(
     "text",
     [
         "2022-6-01 17:00:00",
         "2022-06-1 17:00:00",
-        "2022-06-01 7:00:00",
         "2022-06-01 17:0:00",
         "2022-06-01 17:00:0",
         "2022-06-01T17:00:00",
         "2022-06-01 17:00:00+09:00",
         "2022-06-01 17:00:00Z",
         "2022-06-01 17:00:00.000",
-        "2022-06-01 17:00",
         " 2022-06-01 17:00:00",
         "2022-06-01 17:00:00 ",
         "2022/06/01 17:00:00",
@@ -718,11 +743,13 @@ def test_k4_another_charger_type_is_refused(written):
 )
 def test_k5_an_unreadable_time_is_refused(text):
     rows = [_one(), _one(ChargingsessionID="K2", EndDatetime=text)]
-    with pytest.raises(LayoutError, match="^Korea EndDatetime: 1 times cannot be read$"):
+    with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(korea_csv(rows))
+    refused_as(refused.value, "Korea EndDatetime: 1 times cannot be read")
     rows = [_one(), _one(ChargingsessionID="K2", StartDatetime=text)]
-    with pytest.raises(LayoutError, match="^Korea StartDatetime: 1 times cannot be read$"):
+    with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(korea_csv(rows))
+    refused_as(refused.value, "Korea StartDatetime: 1 times cannot be read")
 
 
 def test_k5_the_times_are_seoul_wall_clock_at_utc_plus_nine():
@@ -797,16 +824,15 @@ def test_k5_a_seconds_field_above_59_is_refused(name, seconds):
     rows = [_one(), _one(ChargingsessionID="K2", **{name: text})]
     with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(korea_csv(rows))
-    assert str(refused.value) == f"Korea {name}: 1 times cannot be read"
+    refused_as(refused.value, f"Korea {name}: 1 times cannot be read")
 
 
 def test_k5_a_missing_plug_in_time_or_session_id_is_refused():
     for field in ("StartDatetime", "ChargingsessionID"):
         rows = [_one(), _one(**{"ChargingsessionID": "K2", field: None})]
-        with pytest.raises(
-            LayoutError, match="^Korea file: a row has no plug-in time or no session id$"
-        ):
+        with pytest.raises(LayoutError) as refused:
             load_korea.from_bytes(korea_csv(rows))
+        refused_as(refused.value, "Korea file: a row has no plug-in time or no session id")
     header = tuple("SrartDatetime" if n == "StartDatetime" else n for n in KOREA_HEADER)
     with pytest.raises(LayoutError, match="no plug-in time"):
         load_korea.from_bytes(korea_csv([_one(StartDatetime=None)], header=header))
@@ -831,8 +857,9 @@ def test_k6_a_file_without_duration_gives_the_same_table():
 @pytest.mark.parametrize("written", ["12 kWh", '"1,5"', "x"])
 def test_k7_an_energy_that_is_not_a_number_is_refused(written):
     rows = [_one(), _one(ChargingsessionID="K2", Demand=written)]
-    with pytest.raises(LayoutError, match="^Korea Demand: 1 values are not numbers$"):
+    with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(korea_csv(rows))
+    refused_as(refused.value, "Korea Demand: 1 values are not numbers")
 
 
 def test_k7_demand_is_the_energy_in_kwh_with_either_decimal_mark():
@@ -916,10 +943,11 @@ def test_k9_a_charger_id_written_as_a_missing_marker_or_a_negative_number_is_ref
     rows = [_one(), _one(ChargingsessionID="K2", ChargerID=written), _one(ChargingsessionID="K3")]
     with pytest.raises(LayoutError) as refused:
         load_korea.from_bytes(korea_csv(rows))
-    assert str(refused.value) == (
-        "Korea ChargerID: 1 values are written as a missing marker or a negative number"
+    refused_as(
+        refused.value,
+        "Korea ChargerID: 1 values are written as a missing marker or a negative number",
     )
-    assert written.strip() == "" or written.strip() not in str(refused.value)
+    assert not any(c.isalpha() for c in written) or written.strip() not in str(refused.value)
 
 
 def test_k9_charger_ids_that_are_not_markers_stay_as_written():
@@ -1257,7 +1285,7 @@ def test_a_malformed_file_ends_in_a_layout_error_or_a_stated_result(case):
     if isinstance(expected, str):
         with pytest.raises(LayoutError) as refused:
             load_korea.from_bytes(content)
-        assert str(refused.value) == expected
+        refused_as(refused.value, expected)
         return
     sessions, dropped = load_korea.from_bytes(content)
     assert (list(sessions["session_id"]), list(dropped["reason"])) == expected

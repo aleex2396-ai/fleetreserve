@@ -1,0 +1,75 @@
+{
+ "about": "Every setting of the forecast trial energy (command fleetreserve.forecast_energy), fixed before any result of it. Written on 24 November 2026, after held-out results were seen; development units only; fills no pre-registered slot and changes no held-out number. APPROVED TO RUN by the owner's decision of 24 November 2026: this one trial, as fixed here, on development data only, once, reported apart. The approval is read from this committed file only (a copy given with --settings cannot grant it). The command reads level, splits, model, arms and the bars and loss limits of reading from here, and refuses any other value unless --not-the-trial is given; the other entries record a fixed choice and its source, and tests check them against the code.",
+ "approved_to_run": true,
+ "question": "Do more cautious energy bounds (the car's top charging speed and storable energy taken at the plan's lowest level, 0.05, the needed energy unchanged) recover offer that the project's own energy bounds lose against known energy, on development units, with the departure forecast of the main model at level 0.2?",
+ "model": "lgbm_tail",
+ "level": 0.2,
+ "rate_cap_level": 0.05,
+ "need_level": 0.2,
+ "splits": 200,
+ "arms": [
+  "known",
+  "empirical",
+  "cautious"
+ ],
+ "arm_definitions": {
+  "known": "arm 1: energy_bounds known (plan section 7, first bullet): the car's true top charging speed, storable energy and needed energy; only the departure is forecast; the reference line, the figure the bars are a share of",
+  "empirical": "arm 2: energy_bounds empirical (forecast_empirical mode empirical): top charging speed and storable energy the level-0.2 lower quantile, needed energy the 0.8 upper quantile, as the model forecasts them; the line the new bounds are compared with",
+  "cautious": "arm 3: energy_bounds cautious (the new value, forecast_empirical mode cautious): top charging speed and storable energy the lower quantile at level 0.05, needed energy unchanged (the 0.8 upper quantile, as in arm 2 at level 0.2); the departure forecast is the same as in the other arms"
+ },
+ "arms_differ_in": "the energy bounds alone: the same fitted model and forecast table (one fit), the same level 0.2 for the departure, the same dial family, rung, splits and seeds, the same calibration rule; the one fit gives the table all three arms read, and level 0.05 is a row of that table (dial_choice.make_factory fits and predicts at every plan level up to the run's level)",
+ "units": "the gate units of gate/matrix.json: nrel-before-may-2019 (printed, not judged: it has no bar), nrel-from-may-2019 and norway-development-pooled (judged); any matrix with another unit is refused before a table is read",
+ "judged_tier": "A (slot loss at 0.10 and driver loss at 0.05); tier B is reported as information and never read by the rule",
+ "fit_units": "the training units, truth_build.TRAIN_UNITS; no development unit is fitted on",
+ "dial_family": "the dial family of gate/matrix.json at level 0.2 (dial_choice.family_at), the empirical departure, departures seen from the rounded-down hour; each arm is measured at every dial of the family and read at its own dial (dial_splits.pick_dial: the largest mean tier A offer over the 200 splits, a tie to the smaller dial)",
+ "rung": "the one-way re-solve rung (dial_choice.RUNG)",
+ "calibration": "per seeded split, dial_splits.score_split on the calibration days of that split; the grid dial_splits.GRID; the same 200 splits (seeds 1 to 200, dial_choice.split_indices) for every arm, so a split is the same calibration days and test days in every arm and the arms are paired by split",
+ "pairing": "per split the difference of arm 3 minus arm 2 of the calibrated offer per counting test day (forecast_mix_pairs.paired_cell, arm 2 as the main side and arm 3 as the trial side); each arm at its own dial",
+ "sources": {
+  "model": "docs/plan.md section 7: lgbm_tail is the main model",
+  "level": "trials-after-sealed-run/README.md, trial a: forecast energy at level 0.2, the level whose gap between known and forecast energy this trial reads again with other bounds",
+  "rate_cap_level": "docs/plan.md section 2: 0.05 is the plan's lowest level of the grid",
+  "need_level": "unchanged from the empirical energy bounds at level 0.2: the upper quantile 1 - 0.2 = 0.8 (forecast_empirical mode empirical, models.lgbm quantile_columns)",
+  "splits": "docs/plan.md section 6: 200 seeded development splits",
+  "units": "gate/matrix.json, gate_units",
+  "fit_units": "src/fleetreserve/learn_run.py check_model: a model is fitted on training units only and never on a scored unit",
+  "dial_family": "docs/plan.md section 6: the dial is the value of section 2 with the largest mean calibrated Tier A re-solve offer over the 200 development splits, for each arm by the same rule",
+  "reading": "the bars and the words: trials-after-sealed-run/forecast-mix.json, reading.bars and its note; the loss limits: docs/plan.md section 6 and crc.ALPHA_SLOT, crc.ALPHA_DRIVER; the rule was fixed before any result",
+  "overrides": "--kappa, --splits, --model, --settings and --matrix change the trial and are refused unless --not-the-trial is given, which labels the run as not the trial; --tables and --truth-run change the data read and are reported, not refused"
+ },
+ "reading": {
+  "rule": "see fleetreserve.forecast_energy_reading.RULE (tests check that the text printed is that text); judged: tier A, per judged unit, each arm at its own dial; G = the paired mean difference of the offer (arm 3 minus arm 2) over the 200 splits; the bar is the unit's share times arm 1's mean offer at its own dial; 'shows a gain' if G is above the bar and arm 3's mean test slot loss is at most the slot limit and its mean test driver loss at most the driver limit; 'shows a loss' if G is below minus the bar; else 'no measurable difference'",
+  "words": {
+   "shows a gain": "G above the bar, and arm 3's mean test slot loss at most 0.10 and mean test driver loss at most 0.05",
+   "shows a loss": "G below minus the bar",
+   "no measurable difference": "every other case, including G above the bar with a loss limit exceeded or undefined (the output then says why), and a unit whose arm 1 offer is 0 or missing, where no bar is defined"
+  },
+  "loss_limits": {
+   "slot": 0.1,
+   "driver": 0.05,
+   "source": "docs/plan.md section 6, tier A: slot loss at crc.ALPHA_SLOT and driver loss at crc.ALPHA_DRIVER; read from arm 3's tier A summary at its own dial (mean_test_slot_loss, mean_test_driver_loss: the mean over the splits that offer of the test days' losses at the calibrated scale)"
+  },
+  "one_line": {
+   "the cautious bounds help": "a gain at one judged unit and no loss at the other",
+   "the cautious bounds hurt": "a loss at one judged unit and no gain at the other",
+   "otherwise": "no measurable difference; a mixed result is reported as mixed"
+  },
+  "also_reported": "per judged unit: arm 2's and arm 3's mean offer as a share of arm 1's, G as a share of arm 1's mean offer (the share the bar is read against), and G as a share of the gap between arm 1 and arm 2 when that gap is above 0",
+  "unit_not_judged": "nrel-before-may-2019 has no bar: its figures are printed and it is never read by the rule",
+  "tier_B": "numbers only, labelled information, not read by the rule",
+  "no_other_sites": "No Dutch or Korean site is a development unit, so the trial cannot speak for them.",
+  "no_further_arm": "no arm, level, bar or setting is added or changed after results are seen",
+  "what_a_result_shows": "A gain would show, on development data and at these two units only, that cautious rate and storable-energy bounds recover offer that the project's empirical bounds lose; it would not show that the held-out zero came from the energy bounds, it would not change the main model, the plan or any held-out figure, and it would be a reason to ask the owner for a further trial, not a result of the plan. A loss would show only that level 0.05 for the rate and the storable energy, at these two units and at departure level 0.2, makes the offer smaller than the empirical bounds do; the trial tries one setting, so it would not show that other settings would do the same. Still untried: levels between 0.05 and the level of the empirical bounds, a stricter need bound, other departure levels and other models; the offer need not move in one direction with the level. No measurable difference would show that the paired difference is inside the noise bar of an analogy (the bars are the neural model's seed spread at another level, not this trial's measured noise), not that the bounds are equal. The trial speaks for the two judged development units and for the departure level 0.2 only.",
+  "bars": {
+   "nrel-from-may-2019": {
+    "share": 0.08,
+    "source": "docs/prior-looks.md, the entry beginning \"The neural model's seed test\": \"The seed alone moves the offer by about 1.5 kWh (8%) at workplaces\". That figure is the neural model's range over three seeds (with the plan's own runs) at one level, kappa 0.3, while this trial's line is at kappa 0.2 and its share is a mean over 200 splits that share days; the bar is an analogy and not this trial's measured noise. The rule was fixed before any result"
+   },
+   "norway-development-pooled": {
+    "share": 0.3,
+    "source": "docs/prior-looks.md, the entry beginning \"The neural model's seed test\": \"0.5 kWh (30%) at Norway\". That figure is the neural model's range over three seeds (with the plan's own runs) at one level, kappa 0.3, while this trial's line is at kappa 0.2 and its share is a mean over 200 splits that share days; the bar is an analogy and not this trial's measured noise. The rule was fixed before any result"
+   }
+  },
+  "judged_units": "nrel-from-may-2019 (the workplace unit) and norway-development-pooled; nrel-before-may-2019 is printed and not judged (it has no bar)"
+ }
+}

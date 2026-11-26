@@ -1,0 +1,124 @@
+{
+ "about": "Run matrix of two trials on the development units for the model lgbm_tail, made on 24 November 2026 after held-out results were seen; it fills no pre-registered slot and changes no held-out number. Trial a: forecast energy (energy bounds empirical) at level 0.2 with dial 0.02. Beside trial a, the main reading (energy bounds known) at level 0.2 with dial 0.02, so that trial a differs from it in the energy bounds alone. Trial c: the main reading (energy bounds known) at level 0.1 with dial 0.02, whose fixed-plan rung (no hourly re-solving) is the trial. Both read in the rehearsal matrices' format: every shared value and every configuration field not named here is that of gate/rehearsal-matrix/lgbm_tail.json and lgbm_tail-forecast-energy.json.",
+ "gate_units": [
+  "nrel-before-may-2019",
+  "nrel-from-may-2019",
+  "norway-development-pooled"
+ ],
+ "required_units": 2,
+ "n_calibration": 100,
+ "calibration_half_below": 200,
+ "split_seed": 1,
+ "rho": 0.0,
+ "two_way_budget_kwh": 5.0,
+ "audited_paths": "three fixed and five seeded vertex paths per day (audit_paths)",
+ "no_fit": "cap",
+ "small_fleet": "keep",
+ "reference": "other-days",
+ "min_cell": 20,
+ "shape_tolerance": 1e-06,
+ "zero_value_kwh": 1e-06,
+ "t5_tolerance_kwh": 1e-06,
+ "gate_rung": "one-way",
+ "report": {
+  "ceilings": [
+   "hindsight-free-decision-hour",
+   "best-causal"
+  ],
+  "ratio_rules": [
+   "all_units",
+   "all_share_passing_units",
+   "required_units_both"
+  ],
+  "tiers": [
+   "A",
+   "B"
+  ]
+ },
+ "configurations": [
+  {
+   "name": "forecast-energy-k0.2-d0.02-empirical",
+   "family": "alternate",
+   "kappa": 0.2,
+   "departure": "empirical",
+   "energy_bounds": "empirical",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": "forecast-energy-k0.2-d0.02-oracle",
+   "driver_risk": 0.02
+  },
+  {
+   "name": "forecast-energy-k0.2-d0.02-oracle",
+   "family": "alternate",
+   "kappa": 0.2,
+   "departure": "oracle",
+   "energy_bounds": "empirical",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": null,
+   "driver_risk": 0.02
+  },
+  {
+   "name": "main-k0.1-d0.02-empirical",
+   "family": "main",
+   "kappa": 0.1,
+   "departure": "empirical",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": "main-k0.1-d0.02-oracle",
+   "driver_risk": 0.02
+  },
+  {
+   "name": "main-k0.1-d0.02-oracle",
+   "family": "main",
+   "kappa": 0.1,
+   "departure": "oracle",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": null,
+   "driver_risk": 0.02
+  },
+  {
+   "name": "main-k0.2-d0.02-empirical",
+   "family": "main",
+   "kappa": 0.2,
+   "departure": "empirical",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": "main-k0.2-d0.02-oracle",
+   "driver_risk": 0.02
+  },
+  {
+   "name": "main-k0.2-d0.02-oracle",
+   "family": "main",
+   "kappa": 0.2,
+   "departure": "oracle",
+   "energy_bounds": "known",
+   "uncertifiable_car": "leave-unsteered",
+   "shape_rule": "largest-smallest-width",
+   "departure_floor": "as-planned",
+   "driver_loss_cars": "steered-only",
+   "departure_seen": "rounded-hour",
+   "oracle_partner": null,
+   "driver_risk": 0.02
+  }
+ ]
+}

@@ -54,11 +54,11 @@ Readings (alternatives in brackets):
       neither: it then refuses at a missing file, which is a fault here. A test pins the stops
       to each command (`tests/wp12/test_run_starts.py`). [Alternative: made-up tables and runs
       for every option, which the gate's checks of a build at the commit would refuse.]
-  T4. What comes before the program in a step's command (`uv run --frozen --group learn`) is not
-      run: the probe runs in the check's own interpreter, so the check runs in an environment
-      with every group the list's commands name (`uv run --frozen --group learn python -m
-      fleetreserve.run_list ...`). [Alternative: run each prefix, which builds an environment in
-      the made-up folder per step.]
+  T4. What comes before the program in a step's command (`uv run --frozen --group learn --group
+      baselines`) is not run: the probe runs in the check's own interpreter, so the check runs in
+      an environment with every group the list's commands name (`uv run --frozen --group learn
+      --group baselines python -m fleetreserve.run_list ...`). [Alternative: run each prefix,
+      which builds an environment in the made-up folder per step.]
   T5. The check is made by the checker's command line and by the driver before its first step,
       for either purpose (`run_driver` reading D7): a drive never relies on a check made by hand
       before it, so no step of a list the check refuses starts, and no sealed file is opened.

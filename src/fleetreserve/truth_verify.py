@@ -34,7 +34,10 @@ setting) is not applied.
   end (`termin_charge`, read again through the NREL loader from `data/raw`) is joined to each
   car: a car whose recorded charging ended at or before τ has room 0.
 - `fallbacks`: every training and development unit's summary has each fallback share of
-  `truth_build.FALLBACK_KEYS` as a number from 0 to 1.
+  `truth_build.FALLBACK_KEYS` as a number from 0 to 1. This is the stricter of two judges: a
+  share written as `null` (an undefined share, 0 of 0) fails here. The pass mark of WP2 (item 3)
+  does not run this item; it runs `tools/wp2_fallback_check.py`, which judges the same shares
+  alike but accepts a `null` share whose denominator is exactly 0.
 
 Exit status: 0 passed; 1 a rule is broken; 2 could not run (no `data/raw`, no recorded build
 at this commit, a table missing, the NREL file missing).

@@ -9,8 +9,9 @@ in another order, a file of only the columns read, spaces around the header name
 order mark, only the four stated missing markers read as missing, every shared charging ID of
 the README, an average of exactly 22 kW kept, the duplicate rule comparing columns the table
 does not use, and loud failure on a missing column (with its whole message), an unreadable
-number, a time not written exactly YYYY-MM-DDThh:mm:ss (each field one digit short in turn, and
-digits that are not ASCII), or a missing plug-in time.
+number, a time not written exactly YYYY-MM-DD hh:mm:ss or YYYY-MM-DDThh:mm:ss (each field one
+digit short in turn, and digits that are not ASCII; the form with a space is read, see
+`test_load_asr_layout.py`), or a missing plug-in time.
 
 Text fields are kept as written: users and stations of digits keep their leading zeros, also
 beside a missing user, and users "TRUE" and "FALSE" stay words. A list of malformed files (a
@@ -191,9 +192,9 @@ def test_a_missing_column_is_refused(name):
     header = tuple(column for column in ASR_HEADER if column != name)
     with pytest.raises(LayoutError) as refused:
         load_asr.from_bytes(asr_csv(ROWS, header=header))
-    assert str(refused.value) == (
+    assert str(refused.value).startswith(
         "a.s.r. file lacks columns: no separator gives "
-        "EV_id_x, start_datetime, end_datetime, total_energy, evse_id"
+        "EV_id_x, start_datetime, end_datetime, total_energy, evse_id; header fields as found "
     )
 
 
@@ -290,7 +291,8 @@ def test_an_unreadable_number_is_refused():
         "2022-05-06T08:00:00Z",
         "2022-05-06T08:00:00+02:00",
         "2022-05-06T08:00:00.000",
-        "2022-05-06 08:00:00",
+        "2022-05-06  08:00:00",
+        "2022-05-06_08:00:00",
         " 2022-05-06T08:00:00",
         "2022-05-06T08:00:00 ",
         "2022-05-06T08:00",
@@ -359,8 +361,13 @@ A_ROW_2 = "EV002,2022-09-01T08:30:00,2022-09-01T16:00:00,15.0,B,E2,2"
 WHAT = "a.s.r. file"
 LACKS = (
     "a.s.r. file lacks columns: no separator gives "
-    "EV_id_x, start_datetime, end_datetime, total_energy, evse_id"
+    "EV_id_x, start_datetime, end_datetime, total_energy, evse_id; header fields as found "
+    "(a field is given as text only when it is printable ASCII with no digit, else as "
+    "its shape; each cut at 40 characters, at most 40 shown): comma: 0 fields []; "
+    "semicolon: 0 fields []; "
+    "tab: 0 fields []; bar: 0 fields []; the file has no data record"
 )
+TIME_SHAPE = '; field shapes: "9999-99-99a99:99:99" x 1'
 
 
 def _file(*lines: str, end: str = "\n") -> bytes:
@@ -382,7 +389,7 @@ MALFORMED = {
     ),
     "no plug-in": (
         _file(A_HEADER, _with(A_ROW_1, 1, ""), A_ROW_2),
-        "a.s.r.: a row has no plug-in time (start_datetime)",
+        "a.s.r.: a row has no plug-in time (start_datetime): 1 rows",
     ),
     "no plug-out": (
         _file(A_HEADER, _with(A_ROW_1, 2, ""), A_ROW_2),
@@ -400,19 +407,19 @@ MALFORMED = {
     "no channel": (_file(A_HEADER, _with(A_ROW_1, 6, ""), A_ROW_2), BOTH),
     "30 February": (
         _file(A_HEADER, _with(A_ROW_1, 1, "2023-02-30T10:00:00"), A_ROW_2),
-        "a.s.r. start_datetime: 1 times cannot be read",
+        "a.s.r. start_datetime: 1 times cannot be read" + TIME_SHAPE,
     ),
     "hour 24": (
         _file(A_HEADER, _with(A_ROW_1, 1, "2023-01-01T24:00:00"), A_ROW_2),
-        "a.s.r. start_datetime: 1 times cannot be read",
+        "a.s.r. start_datetime: 1 times cannot be read" + TIME_SHAPE,
     ),
     "month 13": (
         _file(A_HEADER, A_ROW_1, _with(A_ROW_2, 2, "2023-13-01T10:00:00")),
-        "a.s.r. end_datetime: 1 times cannot be read",
+        "a.s.r. end_datetime: 1 times cannot be read" + TIME_SHAPE,
     ),
     "minute 60": (
         _file(A_HEADER, A_ROW_1, _with(A_ROW_2, 2, "2023-01-01T10:60:00")),
-        "a.s.r. end_datetime: 1 times cannot be read",
+        "a.s.r. end_datetime: 1 times cannot be read" + TIME_SHAPE,
     ),
     "empty": (b"", LACKS),
     "blank lines only": (b"\n\n", LACKS),
@@ -456,11 +463,11 @@ MALFORMED = {
     ),
     "a column named twice": (
         _file(A_HEADER + ",evse_id", A_ROW_1 + ",x", A_ROW_2 + ",y"),
-        f"{WHAT} names columns more than once: ['evse_id']",
+        f"{WHAT} names columns more than once: 1 repeated name(s)",
     ),
     "a column named twice with spaces": (
         _file(A_HEADER + ", evse_id ", A_ROW_1 + ",x", A_ROW_2 + ",y"),
-        f"{WHAT} names columns more than once: ['evse_id']",
+        f"{WHAT} names columns more than once: 1 repeated name(s)",
     ),
     "line ends of a carriage return": (_file(A_HEADER, A_ROW_1, A_ROW_2, end="\r"), BOTH),
     "a field longer than the csv limit": (
@@ -495,8 +502,8 @@ def test_any_other_error_while_reading_is_a_layout_error_with_its_cause(monkeypa
     monkeypatch.setattr(load_asr, "localize", fails)
     with pytest.raises(LayoutError) as refused:
         load_asr.from_bytes(_file(A_HEADER, A_ROW_1, A_ROW_2))
-    assert str(refused.value) == "a.s.r. file cannot be read: RuntimeError: made up"
-    assert refused.value.__cause__ is made_up
+    assert str(refused.value) == "a.s.r. file cannot be read: RuntimeError"
+    assert refused.value.__cause__ is None  # the error's own text may hold a value of a row
 
 
 def test_through_the_gated_opener_in_a_made_up_repository(tmp_path):

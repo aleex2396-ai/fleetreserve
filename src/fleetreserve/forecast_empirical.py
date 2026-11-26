@@ -18,7 +18,17 @@ its WP6 line names only departure quantiles, so the mode is a required argument 
   `(1 - rho) * room`;
 - `"known"`: `r_hat = r`, `e_cap = room`, `e_need = (1 - rho) * room` (only departure uncertain);
 - `"user-rate"`: `r_hat` the car's own truth rate (the user's highest observed average, or the
-  nominal cap), `e_cap` and `e_need` as in `"empirical"`.
+  nominal cap), `e_cap` and `e_need` as in `"empirical"`;
+- `"cautious"` (only the forecast trial `forecast_energy` asks for it; not in `MODES`): `r_hat` and
+  `e_cap` the lower quantiles at the fixed level `CAUTIOUS_LEVEL` (0.05, the plan's lowest level),
+  whatever the level `kappa` of the departure, and `e_need` as in `"empirical"` at `kappa`. At
+  `kappa` 0.05 it equals `"empirical"`;
+- `"cautious-need"` and `"cautious-all"` (only the forecast trial `forecast_energy_2` asks for them;
+  not in `MODES` and not in `ENERGY_MODES`, which the first energy trial's tests pin): in
+  `"cautious-need"` the needed energy alone is cautious, `e_need` the upper quantile at the fixed
+  level `CAUTIOUS_LEVEL` (the 0.95 quantile), `r_hat` and `e_cap` as in `"empirical"`; in
+  `"cautious-all"` all three are cautious, `r_hat` and `e_cap` as in `"cautious"` and `e_need` as in
+  `"cautious-need"`. The departure `d_hat` is read at `kappa` in every mode.
 
 Oracle departure (`departure="oracle"`): `d_hat` is the car's true departure hour, rounded down
 as in the true set. The exact fractional plug-out time is not used: with it the forecast set
@@ -77,6 +87,22 @@ TUNING_KAPPAS = tuple(k for k in KAPPAS if k <= 0.3)
 # Levels off plan section 2's grid, read only by the what-if of `dial_choice --what-if-kappa`.
 WHAT_IF_KAPPAS = (0.6, 0.7)
 MODES = ("empirical", "known", "user-rate")
+# The energy mode of the forecast trial `forecast_energy` (a trial made after the sealed run): the
+# rate and room bounds at the fixed level `CAUTIOUS_LEVEL`, the need at the car's own level. It is
+# not in `MODES`, which the forecast report and the table tests loop over, so their output and
+# tests are unchanged; `ENERGY_MODES` is what a forecaster accepts.
+CAUTIOUS = "cautious"
+CAUTIOUS_LEVEL = 0.05
+ENERGY_MODES = (*MODES, CAUTIOUS)
+# The two further energy modes of the forecast trial `forecast_energy_2`. They are kept apart from
+# `ENERGY_MODES` so that the first trial's lists are unchanged; `TRIAL_ENERGY_MODES` is what a
+# forecaster accepts. `RATE_CAP_AT_FIXED_LEVEL` are the modes whose rate and room bounds are read
+# at `CAUTIOUS_LEVEL`, `NEED_AT_FIXED_LEVEL` those whose need bound is.
+CAUTIOUS_NEED = "cautious-need"
+CAUTIOUS_ALL = "cautious-all"
+TRIAL_ENERGY_MODES = (*ENERGY_MODES, CAUTIOUS_NEED, CAUTIOUS_ALL)
+RATE_CAP_AT_FIXED_LEVEL = (CAUTIOUS, CAUTIOUS_ALL)
+NEED_AT_FIXED_LEVEL = (CAUTIOUS_NEED, CAUTIOUS_ALL)
 DEPARTURES = ("empirical", "oracle")
 REFERENCES = ("other-days", "earlier-days")
 MIN_CELL = 20
@@ -206,8 +232,8 @@ class EmpiricalForecaster:
         self, truth: TruthDay, i: int, kappa: float, mode: str, departure: str = "empirical"
     ) -> ForecastCar | None:
         """Car `i`'s forecast at level `kappa`, or None when it has no reference sample."""
-        if mode not in MODES:
-            raise ValueError(f"mode must be one of {MODES}, got {mode!r}")
+        if mode not in TRIAL_ENERGY_MODES:
+            raise ValueError(f"mode must be one of {TRIAL_ENERGY_MODES}, got {mode!r}")
         if departure not in DEPARTURES:
             raise ValueError(f"departure must be one of {DEPARTURES}, got {departure!r}")
         true = truth.day.cars[i]
@@ -221,9 +247,11 @@ class EmpiricalForecaster:
             d_hat = lower_quantile(found.departures, kappa)
         if mode == "known":
             return ForecastCar(d_hat, true.rate, true.room, true.need(rho))
-        rate = true.rate if mode == "user-rate" else lower_quantile(found.rates, kappa)
-        cap = lower_quantile(found.rooms, kappa)
-        need = upper_quantile((1 - rho) * found.rooms, kappa)
+        bound = CAUTIOUS_LEVEL if mode in RATE_CAP_AT_FIXED_LEVEL else kappa  # rate and cap
+        need_level = CAUTIOUS_LEVEL if mode in NEED_AT_FIXED_LEVEL else kappa
+        rate = true.rate if mode == "user-rate" else lower_quantile(found.rates, bound)
+        cap = lower_quantile(found.rooms, bound)
+        need = upper_quantile((1 - rho) * found.rooms, need_level)
         return ForecastCar(d_hat, rate, cap, need)
 
     def forecast_day(

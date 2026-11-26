@@ -64,6 +64,9 @@ results (`tests/wp12/test_sealed_matrix.py`).
    step given a truth run of the other setting (the held step at the main sealed or development
    build, the main step at the held sealed build; the review of 2054956, finding 2) and a truth
    run given as a literal path. The two steps with no `--rho` (the command's default, 0) keep it.
+10. Reading M3 of `sealed_matrix`: the three fixed-plan models (Kaplan-Meier `km`, pooled
+   LightGBM `lgbm`, `cox`) are each scored by a `learn_run` on the main model's matrix, in the
+   rehearsal and in the sealed run, and by no other matrix.
 """
 
 import copy
@@ -450,6 +453,40 @@ def test_the_fixed_dial_names_hold_the_site_types_of_sealed_matrix():
     assert sorted(run_list.DIAL_NAMES.values()) == sorted(
         (sealed_matrix.WORKPLACES, sealed_matrix.OTHERS)
     )
+
+
+def test_the_fixed_plan_models_are_scored_on_the_main_models_matrix():
+    """Reading M3 of `sealed_matrix`. Red when one of the three fixed-plan entries of the
+    committed list names another model's matrix in either purpose (for example
+    `gate/sealed-matrix/hazard_tuned_inputs.json` in place of `.../lgbm_tail.json`), when a
+    `learn_run` of `km`, `lgbm` or `cox` is added on another matrix, or when a fixed-plan entry
+    is dropped."""
+    parsed = run_list.load(LIST)
+    fixed_plan = {
+        "learn-fixed-plan-km": "km",
+        "learn-fixed-plan-lgbm": "lgbm",
+        "learn-fixed-plan-cox": "cox",
+    }
+    for purpose in run_list.PURPOSES:
+        wanted = f"gate/{'sealed' if purpose == run_list.SEALED_RUN else 'rehearsal'}-matrix"
+        wanted += "/lgbm_tail.json"
+        steps = [
+            s
+            for s in run_list.instantiate(parsed, purpose)
+            if run_list.step_module(s) == "learn_run"
+        ]
+        read = {}
+        for s in steps:
+            options = run_list.step_options(s, ("--model", "--matrix"))
+            (model,) = [o.value for o in options["--model"]]
+            (matrix,) = [o.value for o in options["--matrix"]]
+            read[s.label] = (model, matrix)
+        assert read["learn-lgbm_tail"] == ("lgbm_tail", wanted), purpose
+        for label, model in fixed_plan.items():
+            assert read[label] == (model, wanted), (purpose, label)
+        for label, (model, matrix) in read.items():
+            if model in fixed_plan.values():
+                assert label in fixed_plan and matrix == wanted, (purpose, label)
 
 
 def test_every_compare_run_entry_names_the_no_pause_seed_fixed_in_the_list():

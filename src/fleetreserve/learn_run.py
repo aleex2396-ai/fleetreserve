@@ -160,6 +160,12 @@ the key `rotation_whatif` of `learn.json` and `learn-gate.json`. A model with ex
 adds the key `context_inputs` (its columns, the 9/80 parity, the SHA-256 of each context file
 read) to both files, and a look-ahead model the key `look_ahead` and the label as the first lines
 of the summary (`model_inputs.mark`, `model_inputs.summary_head`).
+
+`--made-after-sealed-run` (`after_sealed_run`): a trial on development units made after the sealed
+run's results were seen. Every output then says so: the first lines of the summary, the key
+`made_after_sealed_run` of `learn.json` and `learn-gate.json`, and the file
+`after_sealed_run.FILE_NAME` of the run folder. It is refused (exit 2) on the held-out route.
+Without it nothing changes.
 """
 
 import argparse
@@ -176,6 +182,7 @@ from pathlib import Path
 import pandas as pd
 
 from fleetreserve import (
+    after_sealed_run,
     day_losses,
     driver_risk,
     gate_day,
@@ -541,6 +548,7 @@ def summary_lines(results: dict) -> list[str]:
         *sealed_route.summary_head(results),
         *model_inputs.summary_head(results),
         *rotation_whatif.summary_head(results),
+        *after_sealed_run.summary_head(results),
         f"Model {results['model']}: {gate_summary.days_word(results)} scores and calibrated "
         f"offers (test days), {setting} truth setting.",
         gate_summary.calibration_rule_text(results["calibration_rule"]),
@@ -664,6 +672,7 @@ def main(argv: list[str] | None = None, root: Path = TOP) -> int:
     parser.add_argument("--held-out-truth-run", type=Path, default=None)
     parser.add_argument("--interval-seed", type=int, default=None)
     parser.add_argument("--interval-resamples", type=int, default=None)
+    parser.add_argument(after_sealed_run.FLAG, dest="after_sealed", action="store_true")
     args = parser.parse_args(argv)
     try:
         gate_run.argument_paths(args)
@@ -686,6 +695,10 @@ def main(argv: list[str] | None = None, root: Path = TOP) -> int:
         )
     except sealed_route.RouteRefused as problem:
         print(f"COULD NOT RUN: {problem}")
+        return 2
+    refused = after_sealed_run.refuse_held_out(args.after_sealed, route.held_out)
+    if refused is not None:
+        print(f"COULD NOT RUN: {refused}")
         return 2
     look_ahead = not route.held_out  # reading R3
     try:
@@ -784,6 +797,7 @@ def main(argv: list[str] | None = None, root: Path = TOP) -> int:
         print(f"FAILED: the model could not be scored: {problem}")
         return 1
     rotation_whatif.mark(results, matrix, fit_units)
+    after_sealed_run.mark(results, args.after_sealed)
     model_inputs.mark(results, model)
     results["inputs"] = inputs
     sealed_route.mark(results, route, held_inputs, fit_units)
@@ -800,6 +814,7 @@ def main(argv: list[str] | None = None, root: Path = TOP) -> int:
             "sha256": hashlib.sha256((folder / TABLE_NAME).read_bytes()).hexdigest(),
         }
         rotation_whatif.mark(document, matrix, fit_units)
+        after_sealed_run.mark(document, args.after_sealed)
         model_inputs.mark(document, model)
         document["inputs"] = inputs
         sealed_route.mark(document, route, held_inputs, fit_units)
@@ -809,6 +824,7 @@ def main(argv: list[str] | None = None, root: Path = TOP) -> int:
         (folder / RESULTS_NAME).write_text(_json(results))
         (folder / TIMING_NAME).write_text(_json(timing))
         (folder / DAY_LOSSES_NAME).write_text(day_losses.text(loss_records))
+        after_sealed_run.write_note(folder, args.after_sealed)
     # On the sealed route a configuration that raised an error on a unit is written as `failed:
     # <error>` and counts as not passing, and the step still exits 0: the sealed-run check (WP14)
     # reads the failed configurations of every learn step and fails naming each.

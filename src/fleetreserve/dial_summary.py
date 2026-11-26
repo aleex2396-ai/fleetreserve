@@ -13,7 +13,7 @@ averages seeds (`--what-if-fit-seeds`) also prints what is averaged (`seed_avera
 and `ENERGY_MEANS`.
 """
 
-from fleetreserve import rotation_whatif
+from fleetreserve import after_sealed_run, rotation_whatif
 from fleetreserve.gate_config import TIER_LABELS
 from fleetreserve.gate_summary import calibration_rule_text
 
@@ -169,6 +169,7 @@ def summary_lines(document: dict) -> list[str]:
     setting = document.get("inputs", {}).get("setting", "main")
     lines = [
         *rotation_whatif.summary_head(document),
+        *after_sealed_run.summary_head(document),
         *_what_if_head(document),
         f"Dial choice for model {document['model']}: {run['splits']} seeded splits per unit "
         f"(seeds 1 to {run['splits']}), {setting} truth setting, main reading "

@@ -8,7 +8,9 @@ reads no file.
 Layout: from the data paper, as summarised from it, and from the authors' plotting scripts
 (`Code.zip` on the same figshare record: six R scripts, code and comments only, read as text and
 never run on 15 November 2026, the owner's yes of that day; `docs/prior-looks.md`); no row and no
-header line of the file has been seen. The paper's Table 7 names 16 columns: `ChargingsessionID`,
+header line of the file had been seen when this paragraph was written (the layout look of 23
+November 2026 found the file as K17 states). The paper's Table 7 names 16 columns:
+`ChargingsessionID`,
 `UserID`, `ChargerID`, `ChargerCompany`, `Location`, `ChargerType`, `ChargerCapacity`,
 `ChargerACDC`, `StartDay`, `StartTime`, `EndDay`, `EndTime`, `StartDatetime`, `EndDatetime`,
 `Duration`, `Demand`. The paper says: `Location` is the charger's installed location type, one of
@@ -29,29 +31,35 @@ companies'. They never name `ChargerType`, `ChargingsessionID`, `ChargerCapacity
 `Duration`, `StartDatetime` or `EndDatetime` as read from the file, and state no encoding and no
 time zone.
 
-The session table is filled from the columns `REQUIRED`, one start time and one end time (K5);
-a missing one raises `LayoutError`. Where the datetime column of a side and both its day and its
+The session table is filled from the columns `REQUIRED`, one start time and one end time (K5)
+and, where the file has the paper's session id column, that (K9); a missing one raises
+`LayoutError`. Where the datetime column of a side and both its day and its
 time column are present, the two forms are compared (K13). The other columns, `ChargerCompany`,
 `ChargerCapacity`, `ChargerACDC` and `Duration` among them, and a day or time column whose side
 lacks the other one of the pair, are read as text and not used, and need not be present.
 
 Readings, each with its alternative in brackets:
 
-  K1. Header names: found by name, not position, after trimming spaces and case folding, so
-      `chargingsessionid` or ` Demand ` is read as the paper's name. The start column is
+  K1. Header names: found by name, not position, after removing a byte order mark, spaces and
+      double quotes around a name and case folding, so `chargingsessionid`, ` Demand ` or
+      ` "Demand" ` is read as the paper's name (draft fix 1: the double quotes after spaces).
+      No other name is accepted: no alias, no fuzzy match. The start column is
       `StartDatetime` or `SrartDatetime`: at most one of the two may be present (with neither,
       the start comes from the day and time columns, K5). Two header
       names that are equal after trimming and folding raise `LayoutError`. [Alternative: the
       names exactly as printed.]
-  K2. Field separator: the first of "," and ";" whose split of the header holds every name read;
+  K2. Field separator: the first of ",", ";", a tab and "|" (in this order; draft fix 1 added the
+      tab and "|") whose split of the header holds every name read;
       the header is the file's first record as the csv module reads it in strict mode, with the
-      line ends pandas reads ("\\n", "\\r\\n" or "\\r" alone); a header that neither separator
+      line ends pandas reads ("\\n", "\\r\\n" or "\\r" alone); a header that no separator
       can split raises `LayoutError`. Under ";" a decimal comma in a number is read as a
-      decimal point, under "," the decimal mark is ".". The bytes must be UTF-8 text, with or
-      without a byte order mark; any other encoding (UTF-16, or EUC-KR or CP949 with Korean
-      characters) raises `LayoutError`. Missing value: an empty field, `NA`, `NaN` or `nan`, as
-      written, without trimming (the id columns add their own forms, K8 and K9). A blank line is
-      skipped, a quoted field may hold a separator or a line end, and a NUL character is text.
+      decimal point, under ",", a tab and "|" the decimal mark is ".". The bytes must be UTF-8
+      text, with or without a byte order mark; any other encoding (UTF-16, or EUC-KR or CP949
+      with Korean characters) raises `LayoutError` naming the encoding tried and the byte offset
+      of the first byte it cannot read, no more (K16). Missing value: an empty field, `NA`, `NaN`
+      or `nan`, as written, without trimming (the id columns add their own forms, K8 and K9). A
+      blank line is skipped, a quoted field may hold a separator or a line end, and a NUL
+      character is text.
       A row with fewer fields than the header has its last fields missing; a row with more
       raises `LayoutError`, as does a quote never closed. [Alternatives: one fixed separator;
       another encoding or missing marker; every row of the header's width, as `load_asr`
@@ -68,25 +76,30 @@ Readings, each with its alternative in brackets:
       spaces around it allowed: "0", "1", "0.0", " 1 " and the like. Anything else, a missing
       value included, raises `LayoutError`. [Alternative: words such as "slow" and "fast",
       which the paper does not use.]
-  K5. Times: the start is `StartDatetime` (or `SrartDatetime`) where the header has it, else
-      `StartDay` and `StartTime` joined by one space, as the authors' script builds it; the end
-      likewise `EndDatetime`, else `EndDay` and `EndTime` (each side on its own). A side with
+  K5. Times: the start is `StartDay` and `StartTime` joined by one space, as the authors' script
+      builds it, where the header has both, else `StartDatetime` (or `SrartDatetime`); the end
+      likewise `EndDay` and `EndTime`, else `EndDatetime` (each side on its own). The datetime
+      column, where the header has it, is read first by the rules below and is then only a
+      cross-check of the joined time (K13). A side with
       neither its datetime column nor both its day and time columns raises `LayoutError`, and a
       joined time is missing where its day or its time is missing. Every time read is exactly
       YYYY-MM-DD HH:MM:SS, every field zero-padded, ASCII digits only, seconds 00 to 59 (the whole
       text must match `TIME_PATTERN`), and a real date and time; any other form, a seconds field of
-      60 included, raises `LayoutError`. Every time read lies in `FIRST_TIME` to `LAST_TIME` (1
-      September 2021 to 31 October 2022): the paper's span, 30 September 2021 to 30 September 2022,
+      60 included, raises `LayoutError`. A datetime column is first completed (K17): its hour of
+      one digit is given its leading zero and a missing seconds field is read as 00, nothing
+      else. Every time read lies in `FIRST_TIME` to `LAST_TIME` (1 September 2021 to 31 October
+      2022): the paper's span, 30 September 2021 to 30 September 2022,
       with a margin of about a month on each side for sessions that begin before the span or end
       after it; a time outside raises `LayoutError` with the count, so sentinel dates (year 0, 1,
       1900, 1970) cannot become sessions of decades. They are read as Asia/Seoul wall clock (plan
       section 3: "KST, assumed"). Asia/Seoul has one offset, UTC+09:00, over the whole range, so no
-      time read falls in a daylight-saving gap or doubled hour. Where a datetime column is present,
-      it gives its side's time, and its side's day and time columns, when both are present, are
-      compared with it (K13). The messages of a joined time name both columns ("StartDay and
-      StartTime"). The time column's hour may have one digit (K14).
-      [Alternatives: times in UTC; no range, any year read; the paper's span with no margin; the day
-      and time columns always, as the scripts read them.]
+      time read falls in a daylight-saving gap or doubled hour. Where a datetime column and both
+      the day and time columns of its side are present, the day and time columns give the
+      side's time, seconds kept, and the datetime column is compared with it (K13). The
+      messages of a joined time name both columns ("StartDay and StartTime"). The time column's
+      hour may have one digit (K14).
+      [Alternatives: times in UTC; no range, any year read; the paper's span with no margin;
+      the datetime column always, as the paper states it.]
   K6. Plug-in is the start time of K5, plug-out its end time (the paper's "connection"). The file
       has no charging start or end, so `charge_start` and `charge_end` are missing. `Duration`
       (the connection's length in minutes) is not read: the table takes the connection from the
@@ -109,7 +122,10 @@ Readings, each with its alternative in brackets:
       a form would pool unrelated chargers into one station, and the paper gives no missing
       form for it. [Alternative: read it as a missing station, as an empty field is.]
       Session id: `ChargingsessionID` as written, outer spaces kept (" A1" and "A1" are two
-      sessions); a row without one raises `LayoutError`. The file has no site identifier, so
+      sessions); a row without one raises `LayoutError`. A file with no such column (K17) gives
+      each record its place among the file's records, counted from 1 as text ("1", "2", ...; a
+      blank line is not a record), so that no two sessions share an id and the reason
+      `duplicate session id` removes none. The file has no site identifier, so
       a portfolio pools every charger of its location types, at car parks that have nothing
       else in common. [Alternative: none; no site can be formed.]
   K10. Nominal cap: 7 kW for every session (plan section 3: "assumed: the data give a capacity
@@ -135,21 +151,24 @@ Readings, each with its alternative in brackets:
       which the common table does not have.]
   K13. Both forms of a time: where the header holds a side's datetime column and both its day
       and its time column, the day and time joined (K5, K14) are read by the rules of K5 (form,
-      then range, with their messages) and must give, in every row, the time read from the
-      datetime column; a row where one form is missing and the other is not differs too. Any
-      differing row raises `LayoutError` "Korea StartDatetime and StartDay and StartTime: <n>
-      rows disagree" ("1 row disagrees" for one; the same for the end), with the count and
-      never a value. The paper
-      gives both forms one meaning, and the authors' scripts read the day and time columns, so
-      a file in which they differ would give other times than the scripts'. A side with only one
-      of its day and time columns is not compared. [Alternatives: no comparison, the datetime
-      column alone, a disagreement unseen; rows compared only where both forms are present, so
-      a time missing in one form is taken from the datetime column alone.]
+      then range, with their messages) and give the side's time. The time read from the datetime
+      column is a cross-check: in every row it must differ from the joined time by less than 60
+      seconds in either direction (`TOLERANCE`), so a datetime written without its seconds, cut
+      off or rounded, passes; a row where one form is missing and the other is not differs too.
+      Any differing row raises `LayoutError` "Korea StartDatetime and StartDay and StartTime:
+      <n> rows disagree" ("1 row disagrees" for one; the same for the end), with the count and
+      never a value. The paper gives both forms one meaning, and the authors' scripts read the
+      day and time columns, so a file in which they differ by a minute or more would give other
+      times than the scripts'. A side with only one of its day and time columns is not compared
+      and gives its time from the datetime column. [Alternatives: no comparison, a disagreement
+      unseen; a difference of 60 seconds or more allowed up to another limit; the cut-off only
+      (the datetime equal to the joined time with its seconds removed); rows compared only where
+      both forms are present, so a time missing in one form is taken from the other alone.]
   K14. A time column's hour of one digit ("7:05:00", the hour 0 to 9 written without its
       leading zero) is read with a leading zero ("07:05:00") before the day and time are joined,
-      wherever the time column is read (K5, K13); minutes and seconds keep two digits, and the
-      datetime columns keep the paper's form exactly (a one-digit hour there raises
-      `LayoutError`). The paper states the datetime form only; a time column written by a
+      wherever the time column is read (K5, K13); minutes and seconds keep two digits. A datetime
+      column's hour of one digit is completed the same way (K17). The paper states the datetime
+      form only; a time column written by a
       program that drops the leading zero would otherwise refuse the set at the opening.
       [Alternative: the time column held to the datetime form's two-digit hour, refusing such a
       file.]
@@ -183,6 +202,62 @@ the loader returns.
       returned with no session and abstains later. [Alternative: every portfolio with no row
       kept abstains.]
 
+  K16. Refusals (draft fix 1): a refusal states a layout fact and never a value of the file.
+      The refusal for a header that no separator gives the names for lists, for each separator
+      tried, the fields of the file's first record (at most 40 shown, the count given), a field
+      printed as text only when the first record lies wholly on the file's first physical line and
+      a second non-blank csv record follows it (`on_first_line`: the first physical line is the
+      text up to the first boundary of Python's `str.splitlines`: `\\n`, `\\r`, `\\r\\n`, `\\x0b`,
+      `\\x0c`, `\\x1c`, `\\x1d`, `\\x1e`, `\\x85`, U+2028, U+2029; it, parsed alone under the
+      separator, equals the first record of the whole text field by field; a non-blank record
+      holds a character other than a space or a tab; a file of one record, with or without a line
+      end after it, prints shapes only) and the field is printable ASCII (space to `~`) without an
+      ASCII digit, and as its shape otherwise (so every field is a shape when a quoted field of
+      the record runs over a line end, the fields after its closing quote on a later line
+      included), and
+      all of them as shapes with the words "the first line has the shape of a data record"
+      when, under that separator, every field of the first record has the shape of the same
+      field of the second record (the same number of fields); and, for the separator whose first
+      record splits into the most fields (the first of them on a tie), the shape of each field of
+      the second record (at most 40 shown). A blank line counts as a record, as in the header
+      rule. A shape: each ASCII digit is `9`, each ASCII letter `a`, each other ASCII punctuation
+      character or space is kept, any other character (Korean text included) is `?`, cut at 30
+      characters; text is cut at 30 characters too. A field that cannot be read as a time, a
+      number, a charger type, a location type or a charger id is refused with its column, the
+      number of rows that fail and the shapes of those fields (the first five distinct shapes,
+      each with its count, a missing field as `missing`), in the same form. A byte sequence that
+      is not UTF-8 is refused with the encoding tried and the byte offset. The first line is not
+      known to be a header, so a field with a digit is never printed as text, nor any text from a
+      later line. Remaining risk: a field of the file's first physical line, when that line is
+      a complete csv record by itself, that is ASCII, holds no digit and is a data value (a
+      location label) is still printed as text.
+      [Alternative: the first line printed as shapes only.]
+      The shape helpers are written here again, not imported from `load_asr`, so that a fix of
+      one loader never changes the other.
+
+  K17. The file as the layout look of 23 November 2026 found it (its report, not a row): a comma
+      separator, UTF-8 without a byte order mark, line ends "\\r\\n", 13 columns (`UserID`,
+      `ChargerID`, `ChargerCompany`, `Location`, `ChargerType`, `StartDay`, `StartTime`, `EndDay`,
+      `EndTime`, `StartDatetime`, `EndDatetime`, `Duration`, `Demand`): no `ChargingsessionID`, no
+      `ChargerCapacity`, no `ChargerACDC`. `StartDatetime` and `EndDatetime` are written
+      YYYY-MM-DD HH:MM or YYYY-MM-DD H:MM, with no seconds; `StartTime` and `EndTime` HH:MM:SS or
+      H:MM:SS; `StartDay` and `EndDay` YYYY-MM-DD; `Duration` has negative values; `Demand` has a
+      decimal point. Where this module's earlier readings differed from that, four are changed
+      and nothing else (readings of 23 November 2026, to be confirmed):
+      (1) `ChargingsessionID` is not required, and without it each record is its own session,
+      numbered by its place (K9); the module has no rule on repeated rows, only on repeated
+      session ids; (2) a datetime column is completed before it is read: text of the form
+      YYYY-MM-DD, one space, an hour of one or two ASCII digits, a colon, two minute digits and
+      optionally a colon and two seconds digits (`DATETIME_FORM`) becomes the paper's form, the
+      hour given its leading zero and a missing seconds field read as 00; any other text is left
+      as it is and refused by K5; (3) the side's time is the joined day and time columns, with
+      their seconds (K5), and the datetime column only a cross-check of it; (4) the cross-check
+      passes at a difference of less than 60 seconds (K13). The removal rules, their limits, the
+      sessions that count, the location table and the reading of `Duration` (not read, K6; a
+      negative value changes nothing here) are as before.
+      [Alternatives: the session time taken from the datetime columns, which hold the minute
+      only; a session id made from other columns, so that a repeated record is a duplicate.]
+
 These raise `LayoutError`, checked in this order, so that the first one found names the file:
 bytes that are not UTF-8; a header that cannot be split or that lacks a column; a repeated
 column; both start columns; a row that cannot be split under the header or that holds more
@@ -212,9 +287,12 @@ Role: `sessions.finish` accepts only the roles train and development, so the tab
 `finish` under the role development and its role column is then set to "held-out".
 """
 
+import codecs
 import csv
 import io
+import json
 import re
+import string
 
 import numpy as np
 import pandas as pd
@@ -247,7 +325,12 @@ TIME_PATTERN = r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:[0-5]\d"
 ONE_DIGIT_HOUR = re.compile(r"\d:", flags=re.ASCII)
 # The removal limits (`LIMIT_KW`, `ENERGY_ABOVE_KWH`, `SLOW`, `FAST`) and the time range
 # (`FIRST_TIME`, `LAST_TIME`; the paper's span with a margin, reading K5) are in `heldout_limits`.
-SEPARATORS = (",", ";")
+SEPARATORS = (",", ";", "\t", "|")
+SEPARATOR_NAMES = {",": "comma", ";": "semicolon", "\t": "tab", "|": "bar"}
+SHAPE_CUT = 30  # characters of a field's shape or text in a refusal (reading K16)
+FIELDS_SHOWN = 40  # first-line fields and record shapes in a refusal
+SHAPES_SHOWN = 5  # distinct shapes of the fields that fail, in a refusal
+PUNCTUATION = frozenset(string.punctuation + " ")
 MISSING = ["", "NA", "NaN", "nan"]
 # Further forms of a missing id in `UserID` and `ChargerID`, after trimming and case folding.
 ID_MARKERS = ("", "na", "nan", "null", "n/a", "none", "-")
@@ -256,8 +339,12 @@ START_NAMES = (START, "SrartDatetime")
 END = "EndDatetime"
 # The day and time columns that give a time when its datetime column is absent (reading K5).
 DAY_TIME = {START: ("StartDay", "StartTime"), END: ("EndDay", "EndTime")}
+SESSION = "ChargingsessionID"  # read where the file has it; else a record's place (reading K9)
+# A datetime column's text before it is read (reading K17): the paper's form, or an hour of one
+# digit and/or no seconds; ASCII digits only.
+TOLERANCE = pd.Timedelta(seconds=60)  # the cross-check of a datetime with its day and time (K13)
+DATETIME_FORM = re.compile(r"(\d{4}-\d{2}-\d{2}) (\d{1,2}):(\d{2})(:\d{2})?", flags=re.ASCII)
 REQUIRED = (
-    "ChargingsessionID",
     "UserID",
     "ChargerID",
     "Location",
@@ -297,6 +384,145 @@ def _fold(name: str) -> str:
     return name.strip().casefold()
 
 
+def _name(name: str) -> str:
+    """A header name for comparison (reading K1): a byte order mark, spaces and double quotes
+    around it removed, case-folded."""
+    return name.lstrip("\ufeff").strip().strip('"').strip().casefold()
+
+
+def shape(value: str) -> str:
+    """The shape of a field (reading K16): ASCII digits `9`, ASCII letters `a`, other ASCII
+    punctuation and spaces kept, anything else `?`, cut at `SHAPE_CUT` characters."""
+    return "".join(
+        "9"
+        if char in string.digits
+        else "a"
+        if char in string.ascii_letters
+        else char
+        if char in PUNCTUATION
+        else "?"
+        for char in value[:SHAPE_CUT]
+    )
+
+
+def shapes_text(values) -> str:
+    """The distinct shapes of the given fields with their counts, the first `SHAPES_SHOWN` of
+    them in order of first appearance, a missing field as `missing` (reading K16); never a
+    value."""
+    counts: dict[str, int] = {}
+    for value in values:
+        key = "missing" if value is None else json.dumps(shape(str(value)))
+        counts[key] = counts.get(key, 0) + 1
+    listed = list(counts.items())[:SHAPES_SHOWN]
+    text = ", ".join(f"{key} x {count}" for key, count in listed)
+    more = len(counts) - len(listed)
+    return text + (f", and {more} more shapes" if more else "")
+
+
+def _field_shapes(values: pd.Series) -> str:
+    """` field shapes: ...` for the failing fields of a column (reading K16)."""
+    return "; field shapes: " + shapes_text(values)
+
+
+def first_records(text: str, sep: str, number: int) -> list[list[str]]:
+    """The first `number` records of the text under `sep`, split without strict mode, blank
+    lines kept as empty records; fewer when the text has fewer or when the csv module cannot
+    split the next one (reading K16)."""
+    found: list[list[str]] = []
+    try:
+        for row in csv.reader(io.StringIO(text, newline=""), delimiter=sep):
+            found.append(row)
+            if len(found) == number:
+                break
+    except csv.Error:
+        pass
+    return found
+
+
+def blank(record: list[str]) -> bool:
+    """Whether a csv record holds no character other than a space or a tab (an empty line is
+    the empty record)."""
+    return not any(field.strip(" \t") for field in record)
+
+
+def first_physical_line(text: str) -> str:
+    """The text up to the first boundary `str.splitlines` recognises (`\\n`, `\\r`, `\\r\\n`,
+    `\\x0b`, `\\x0c`, `\\x1c`, `\\x1d`, `\\x1e`, `\\x85`, U+2028, U+2029), empty when the text
+    is empty (reading K16)."""
+    lines = text.splitlines()
+    return lines[0] if lines else ""
+
+
+def on_first_line(text: str, sep: str, record: list[str]) -> bool:
+    """Whether the first csv record of the text lies wholly on the file's first physical line
+    and is followed by a second non-blank record (reading K16): the first physical line,
+    parsed alone under `sep`, equals `record` field by field, `record` is not blank, and the
+    text holds at least one more non-blank csv record. False for a quoted field that runs
+    over a line end (so for every field of that record, those after the closing quote
+    included), for a record that the csv module reads over a boundary of `first_physical_line`
+    that it does not itself read as a line end (U+2028, `\\x1e` and the like), when the csv
+    module cannot split the text, and for a file of one record. A blank first line is the
+    empty record, as in `first_records`; blank records after it are not a second record."""
+    try:
+        rows = list(csv.reader(io.StringIO(first_physical_line(text), newline=""), delimiter=sep))
+        if (rows[0] if rows else []) != record or blank(record):
+            return False
+        whole = csv.reader(io.StringIO(text, newline=""), delimiter=sep)
+        return sum(1 for row in whole if not blank(row)) >= 2
+    except csv.Error:
+        return False
+
+
+def first_line_field(field: str) -> str:
+    """A field of the file's first record as a refusal prints it (reading K16): its text, cut
+    at `SHAPE_CUT` characters, only when it holds printable ASCII (space to `~`) and no ASCII
+    digit; otherwise its shape. A control character or a line break in it means a quoted field
+    that runs over later lines, or text that is not the first line's."""
+    if all(" " <= char <= "~" and char not in string.digits for char in field):
+        return json.dumps(field[:SHAPE_CUT])
+    return "shape " + json.dumps(shape(field))
+
+
+def refusal(text: str) -> str:
+    """The text of the refusal when no separator gives the names (reading K16): the layout as
+    found, never a value."""
+    found = {sep: first_records(text, sep, 2) for sep in SEPARATORS}
+    parts = []
+    for sep, rows in found.items():
+        names = rows[0] if rows else []
+        like_data = (
+            len(rows) == 2
+            and len(rows[1]) == len(names)
+            and all(shape(a) == shape(b) for a, b in zip(names, rows[1], strict=True))
+        )
+        note = ", the first line has the shape of a data record" if like_data else ""
+        if like_data or not on_first_line(text, sep, names):
+            shown = ", ".join("shape " + json.dumps(shape(n)) for n in names[:FIELDS_SHOWN])
+        else:
+            shown = ", ".join(first_line_field(name) for name in names[:FIELDS_SHOWN])
+        parts.append(f"{SEPARATOR_NAMES[sep]}: {len(names)} fields{note} [{shown}]")
+    widest = max(SEPARATORS, key=lambda sep: len(found[sep][0]) if found[sep] else 0)
+    message = (
+        "Korea file lacks columns: no separator gives "
+        + ", ".join(REQUIRED)
+        + f", a start ({' or '.join(START_NAMES)}, or {' and '.join(DAY_TIME[START])})"
+        + f" and an end ({END}, or {' and '.join(DAY_TIME[END])})"
+        + "; first-line fields as found (a field that is not printable ASCII or holds an ASCII"
+        + " digit is given as its shape; each cut at"
+        + f" {SHAPE_CUT} characters, at most {FIELDS_SHOWN} shown): "
+        + "; ".join(parts)
+    )
+    if len(found[widest]) < 2:
+        return message + "; the file has no second record"
+    record = found[widest][1]
+    shown = ", ".join(json.dumps(shape(field)) for field in record[:FIELDS_SHOWN])
+    return (
+        message
+        + f"; second record under {SEPARATOR_NAMES[widest]} ({len(record)} fields), field"
+        + f" shapes (each cut at {SHAPE_CUT} characters, at most {FIELDS_SHOWN} shown): [{shown}]"
+    )
+
+
 def _has_side(names: set[str], side: str) -> bool:
     """Whether the folded header `names` give the start or end time `side`: its datetime
     column (either spelling for the start), or both its day and its time column (K5)."""
@@ -311,12 +537,12 @@ def header(text: str) -> tuple[str, list[str]]:
     first record of the text, read by the csv module in strict mode with every line end that
     pandas reads ("\\n", "\\r\\n", "\\r"). A header that no separator can split raises
     `LayoutError` with the csv module's error under ","."""
-    wanted = {_fold(name) for name in REQUIRED}
+    wanted = {_name(name) for name in REQUIRED}
     errors = []
     for sep in SEPARATORS:
         records = csv.reader(io.StringIO(text, newline=""), delimiter=sep, strict=True)
         try:
-            names = [_fold(name) for name in next(records, [])]
+            names = [_name(name) for name in next(records, [])]
         except csv.Error as error:
             errors.append(error)
             continue
@@ -324,12 +550,7 @@ def header(text: str) -> tuple[str, list[str]]:
             return sep, names
     if len(errors) == len(SEPARATORS):
         raise LayoutError(f"Korea file: the header line cannot be split: {errors[0]}")
-    raise LayoutError(
-        "Korea file lacks columns: no separator gives "
-        + ", ".join(REQUIRED)
-        + f", a start ({' or '.join(START_NAMES)}, or {' and '.join(DAY_TIME[START])})"
-        + f" and an end ({END}, or {' and '.join(DAY_TIME[END])})"
-    )
+    raise LayoutError(refusal(text))
 
 
 def _number(text: pd.Series, sep: str) -> pd.Series:
@@ -345,7 +566,9 @@ def _read_number(raw: pd.DataFrame, name: str, sep: str) -> pd.Series:
     number = _number(raw[name], sep)
     bad = raw[name].notna() & number.isna()
     if bad.any():
-        raise LayoutError(f"Korea {name}: {int(bad.sum())} values are not numbers")
+        raise LayoutError(
+            f"Korea {name}: {int(bad.sum())} values are not numbers" + _field_shapes(raw[name][bad])
+        )
     return number.astype(float)
 
 
@@ -369,28 +592,45 @@ def _joined(raw: pd.DataFrame, side: str) -> tuple[pd.Series, str]:
     return joined, f"{day} and {time}"
 
 
+def _completed(value: str | None) -> str | None:
+    """A datetime column's text completed to the paper's form (reading K17): the hour given its
+    leading zero and a missing seconds field read as 00. Text of any other form is returned as
+    it is, and a missing value stays missing."""
+    found = None if value is None else DATETIME_FORM.fullmatch(value)
+    if found is None:
+        return value
+    day, hour, minute, seconds = found.groups()
+    return f"{day} {hour.zfill(2)}:{minute}{seconds or ':00'}"
+
+
 def _time_text(raw: pd.DataFrame, side: str) -> tuple[pd.Series, str]:
     """The text of the start or end time `side` and the name its messages give: the datetime
-    column when the header has it, else the day and time columns joined (reading K5)."""
+    column, completed (reading K17), when the header has it, else the day and time columns
+    joined (reading K5)."""
     if side in raw.columns:
-        return raw[side], side
+        return raw[side].map(_completed), side
     return _joined(raw, side)
 
 
-def _compare(raw: pd.DataFrame, side: str, read: pd.Series) -> None:
+def _compare(raw: pd.DataFrame, side: str, read: pd.Series) -> pd.Series | None:
     """Reading K13: where the header has the datetime column of `side` and both its day and its
-    time column, the joined day and time, read by the rules of K5, must give the time `read`
-    from the datetime column in every row, a missing time agreeing only with a missing one;
-    otherwise `LayoutError` with the number of rows that differ."""
+    time column, the joined day and time, read by the rules of K5, and the time `read` from the
+    datetime column must differ by less than `TOLERANCE` in every row (a cut-off or a rounded
+    seconds field both pass), a missing time agreeing only with a missing one; otherwise
+    `LayoutError` with the number of rows that differ. Returns the joined time, which is the
+    side's time (K5), or None where the side is not compared."""
     if side not in raw.columns or not all(name in raw.columns for name in DAY_TIME[side]):
-        return
+        return None
     joined, name = _joined(raw, side)
     other = _read_time(joined, name)
-    same = (read == other).fillna(False).astype(bool) | (read.isna() & other.isna())
+    same = ((read - other).abs() < TOLERANCE).fillna(False).astype(bool) | (
+        read.isna() & other.isna()
+    )
     if not same.all():
         differ = int((~same).sum())
         rows = "1 row disagrees" if differ == 1 else f"{differ} rows disagree"
         raise LayoutError(f"Korea {side} and {name}: {rows}")
+    return other
 
 
 def _read_time(text: pd.Series, name: str) -> pd.Series:
@@ -399,7 +639,9 @@ def _read_time(text: pd.Series, name: str) -> pd.Series:
     parsed = pd.to_datetime(written.where(exact), format=TIME_FORMAT, errors="coerce")
     bad = text.notna() & parsed.isna()
     if bad.any():
-        raise LayoutError(f"Korea {name}: {int(bad.sum())} times cannot be read")
+        raise LayoutError(
+            f"Korea {name}: {int(bad.sum())} times cannot be read" + _field_shapes(text[bad])
+        )
     outside = (parsed < pd.Timestamp(FIRST_TIME)) | (parsed > pd.Timestamp(LAST_TIME))
     if outside.any():
         raise LayoutError(
@@ -415,8 +657,12 @@ def read_raw(content: bytes) -> pd.DataFrame:
     number or of a marker made missing (readings K1 to K9)."""
     try:
         text = content.decode("utf-8-sig")
-    except UnicodeDecodeError:
-        raise LayoutError("Korea file is not UTF-8 text") from None
+    except UnicodeDecodeError as error:
+        offset = error.start + (len(codecs.BOM_UTF8) if content.startswith(codecs.BOM_UTF8) else 0)
+        raise LayoutError(
+            f"Korea file is not UTF-8 text (utf-8-sig tried; the first byte it cannot read is at "
+            f"offset {offset})"
+        ) from None
     sep, names = header(text)
     if len(set(names)) != len(names):
         raise LayoutError(
@@ -437,28 +683,42 @@ def read_raw(content: bytes) -> pd.DataFrame:
     except pd.errors.ParserError:
         raise LayoutError(
             "Korea file: a row cannot be split under the header (more fields than the header, "
-            "or a quote never closed)"
+            f"or a quote never closed; the header has {len(names)} fields)"
         ) from None
     if not raw.index.equals(pd.RangeIndex(len(raw))):
-        raise LayoutError("Korea file: rows hold more fields than the header")
-    paper = {_fold(name): name for name in (*REQUIRED, START, END, *DAY_TIME[START])}
+        raise LayoutError(
+            "Korea file: rows hold more fields than the header "
+            f"(the header has {len(names)} fields)"
+        )
+    paper = {_fold(name): name for name in (SESSION, *REQUIRED, START, END, *DAY_TIME[START])}
     paper |= {_fold(name): name for name in DAY_TIME[END]}
     paper[_fold(START_NAMES[1])] = START
     raw.columns = [paper.get(name, name) for name in names]
     raw = raw.astype(object).where(raw.notna(), None)
+    if SESSION not in raw.columns:
+        raw[SESSION] = pd.Series([str(n) for n in range(1, len(raw) + 1)], index=raw.index)
     start, start_name = _time_text(raw, START)
     end, end_name = _time_text(raw, END)
-    if start.isna().any() or raw["ChargingsessionID"].isna().any():
-        raise LayoutError("Korea file: a row has no plug-in time or no session id")
+    no_time, no_id = int(start.isna().sum()), int(raw[SESSION].isna().sum())
+    if no_time or no_id:
+        raise LayoutError(
+            "Korea file: a row has no plug-in time or no session id: "
+            f"{no_time} rows with no plug-in time, {no_id} rows with no session id"
+        )
     raw[START] = _read_time(start, start_name)
     raw[END] = _read_time(end, end_name)
-    _compare(raw, START, raw[START])
-    _compare(raw, END, raw[END])
+    for side in (START, END):
+        joined = _compare(raw, side, raw[side])
+        if joined is not None:
+            raw[side] = joined
     raw["Demand"] = _read_number(raw, "Demand", sep)
     kind = _number(raw["ChargerType"], sep)
     bad = ~kind.isin([SLOW, FAST])
     if bad.any():
-        raise LayoutError(f"Korea ChargerType: {int(bad.sum())} values are neither 0 nor 1")
+        raise LayoutError(
+            f"Korea ChargerType: {int(bad.sum())} values are neither 0 nor 1"
+            + _field_shapes(raw["ChargerType"][bad])
+        )
     raw["ChargerType"] = kind.astype(float)
     types = {_fold(name): unit for name, unit in PORTFOLIO_OF.items()}
     unit = raw["Location"].map(lambda v: None if v is None else types.get(_fold(v)))
@@ -468,13 +728,14 @@ def read_raw(content: bytes) -> pd.DataFrame:
         raise LayoutError(
             f"Korea Location: {int(outside.sum())} rows hold no location type of the paper "
             f"({distinct.nunique(dropna=False)} distinct values)"
+            + _field_shapes(raw.loc[outside, "Location"])
         )
     raw[UNIT] = unit
     marked = _marked(raw["ChargerID"], sep)
     if marked.any():
         raise LayoutError(
             f"Korea ChargerID: {int(marked.sum())} values are written as a missing marker or a "
-            "negative number"
+            "negative number" + _field_shapes(raw["ChargerID"][marked])
         )
     zero = (_number(raw["UserID"], sep) == 0).fillna(False).astype(bool)
     raw["UserID"] = raw["UserID"].where(~(zero | _marked(raw["UserID"], sep)), None)
@@ -488,7 +749,7 @@ def to_sessions(raw: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         {
             "site": raw[UNIT],
             "role": CHECKED_AS,
-            "session_id": raw["ChargingsessionID"],
+            "session_id": raw[SESSION],
             "user_id": raw["UserID"],
             "station": raw["ChargerID"],
             "plug_in": raw[START],

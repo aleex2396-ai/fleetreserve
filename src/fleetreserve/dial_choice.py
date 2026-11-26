@@ -206,6 +206,11 @@ plan (`rungs`), and the day enters with the losses that replay gives; the number
 re-solves are counted once per evaluated (day, scale). A missing best-causal ceiling (a timeout)
 leaves the ceiling share of the splits whose test days include that day out.
 
+`--made-after-sealed-run` (`after_sealed_run`): a trial on development units made after the sealed
+run's results were seen. The results (key `made_after_sealed_run`, in the results file and the
+per-split file, and the label), the first lines of the summary and the file
+`after_sealed_run.FILE_NAME` of the run folder then say so. Without it nothing changes.
+
 A rotation what-if (the matrix field `rotation_whatif`, `gate_config`) scores a training unit with
 a model not fitted on it (`models.lgbm_tail_rotation`); the results (`label`, `definitions` and the
 key `rotation_whatif`) and the first lines of the summary say that it is not a run of the plan,
@@ -255,6 +260,7 @@ import numpy as np
 import pandas as pd
 
 from fleetreserve import (
+    after_sealed_run,
     crc,
     dial_splits,
     dial_summary,
@@ -1019,6 +1025,7 @@ def split_offers_document(document: dict, found: dict, results_name: str, text: 
         "label",
         "what_if",
         "rotation_whatif",
+        after_sealed_run.KEY,
         "model",
         "fit_units",
         "matrix",
@@ -1058,6 +1065,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--what-if-fit-seed", type=int, default=None)
     parser.add_argument("--what-if-fit-seeds", default=None)
     parser.add_argument("--what-if-fit-levels", choices=FIT_LEVEL_CHOICES, default=None)
+    parser.add_argument(after_sealed_run.FLAG, dest="after_sealed", action="store_true")
     args = parser.parse_args(argv)
     what_if = args.what_if_kappa is not None
     fit_option = (
@@ -1166,6 +1174,7 @@ def main(argv: list[str] | None = None) -> int:
     document["model"] = model.name
     document["fit_units"] = list(fit_units)
     rotation_whatif.mark(document, matrix, fit_units)
+    after_sealed_run.mark(document, args.after_sealed)
     document["inputs"] = inputs
     document["matrix"] = {
         "file": args.matrix.name,
@@ -1194,6 +1203,7 @@ def main(argv: list[str] | None = None) -> int:
         if certificate_timeouts is not None:
             counts = {"kappa": family[0].kappa, "certificate_timeouts": certificate_timeouts}
             (folder / names["certificate_timeouts"]).write_text(_json(counts))
+        after_sealed_run.write_note(folder, args.after_sealed)
     return 1 if document["failed_configurations"] else 0
 
 

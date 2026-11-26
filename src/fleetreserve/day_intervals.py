@@ -3,6 +3,7 @@ bootstrap over days"; O1: "X's interval above 0"; O4: "upper end >= 90%, lower e
 
 Command line, from the project's top folder:
     python -m fleetreserve.day_intervals --run <run folder> --seed <integer> [--resamples N]
+        [--apart-from <full commit id>]
 
 `--run`: one run recorded by `run_record` of `python -m fleetreserve.gate_run` (it read its results
 from `gate.json` and `gate-day-losses.json`) or of `python -m fleetreserve.learn_run`
@@ -38,8 +39,14 @@ its readings I1 to I8 are `day_bootstrap`'s. The command adds:
        its results). Before any resample, the per-day file is checked against them: the scale
        recomputed on the run's own calibration days by `crc.calibrate_search` must equal the
        run's scale exactly, and the offer, the offer per car, the shares and the losses recomputed
-       from the per-day file must equal the run's within 1e-9 (relative). A difference fails the
-       command (exit 1) and no interval of that job is written.
+       from the per-day file must equal the run's within 1e-9 (relative). A share is recomputed by
+       the run's own rule (`gate_calibrate._share`), so a null the rule makes (a ceiling of a test
+       day below 0, as a rounding of 0 can give, or missing, or ceilings not summing above 0)
+       agrees with the run's null; a null of the run that the rule does not make is a difference,
+       and so is a share where the rule gives none. A test-day ceiling below -1e-9 kWh
+       (`ROUNDING_ALLOWANCE`, far above the rounding of a true 0, seen at about 1e-14, and far
+       below any real ceiling) is a difference of its own, whatever the run's share says. A
+       difference fails the command (exit 1) and no interval of that job is written.
   I12. Where the replay is done. The scoring run itself evaluates, with `--interval-seed`, every
        (day, scale) pair the resamples' searches ask for (`day_resample`): it holds the prepared
        days, the evaluation and the worker pool, so nothing is prepared twice and the pairs come
@@ -102,6 +109,23 @@ its readings I1 to I8 are `day_bootstrap`'s. The command adds:
        I17) is counted in N the same way, though it is not "abstained". [Alternative: leave it
        out of the counts.]
 
+  I19. `--apart-from <commit>`: a re-run after the run's output was seen. Without it a run recorded
+       at another commit is read only as `run_evidence` allows (a run through the sealed-data gate
+       only at its own commit). With it, a run `read_evidence` refuses is read when all hold,
+       each failure exit 2 naming its reason: (a) the run's recorded commit equals the option
+       exactly and is an ancestor of the checked-out commit; (b) the paths `git diff --name-only`
+       lists between them (the options of `run_evidence` point 3) are only
+       `src/fleetreserve/day_intervals.py` and paths on the keep-list of `run_evidence`; (c) the
+       results files are verified by `read_evidence` with the run's own commit as its head. Every
+       output then says so: `day-intervals.json` holds `made_apart` (the run's commit, this
+       commit, the differing paths and the words "made apart at a later commit, after the run's
+       output was seen; fills no slot of plan section 11") and the summary's first line says it.
+       A run read as before has neither. Opens no sealed file: it reads the run folder's files
+       only.
+  I20. A share the run gave as null (a test-day ceiling below 0, as a rounding of 0 can give;
+       reading I11) is "no figure" for that unit and ceiling, with its reason, as a missing
+       ceiling is; the unit's other intervals and the pooled figures are computed as for any unit.
+
 Not computed here: the every-request route of the fixed plan (O1's "every-request offer D"), whose
 closed form is not in the per-day file; the comparison methods of `compare_run` (O1's A and B).
 
@@ -126,11 +150,20 @@ import sys
 import time
 from pathlib import Path
 
-from fleetreserve import day_bootstrap, gate_run, learn_run, sealed_route
+from fleetreserve import day_bootstrap, gate_calibrate, gate_run, learn_run, sealed_route
 from fleetreserve.day_bootstrap import FIGURES
 from fleetreserve.gate_config import CEILINGS, TIER_LABELS
 from fleetreserve.gate_summary import ROUTE_KEY
-from fleetreserve.run_evidence import VERIFIED, CannotCheck, head_commit, read_evidence
+from fleetreserve.run_evidence import (
+    FULL_COMMIT,
+    VERIFIED,
+    CannotCheck,
+    _git,
+    _on_keep_list,
+    head_commit,
+    read_evidence,
+)
+from fleetreserve.run_record import MANIFEST_NAME
 from fleetreserve.sessions import TOP
 
 RESULTS_NAME = "day-intervals.json"
@@ -142,16 +175,30 @@ KINDS = {
 }
 TIER_KEYS = {"A": None, "B": "tier_b"}
 RELATIVE = 1e-9  # reading I11
+ROUNDING_ALLOWANCE = 1e-9  # kWh, reading I11: a test-day ceiling below -this is a problem
+THIS_MODULE = "src/fleetreserve/day_intervals.py"  # the one path `--apart-from` lets differ
+APART_SENTENCE = (
+    "made apart at a later commit, after the run's output was seen; fills no slot of plan "
+    "section 11"
+)
+NULL_SHARE_REASON = (
+    "the run's share of this ceiling is null (a test day's ceiling below 0, as a rounding of 0 "
+    "can give, or the ceilings do not sum above 0): no figure"
+)
 
 
 class CouldNotRun(Exception):
     """The run cannot be read (exit status 2)."""
 
 
-def read_run(run: Path, head: str) -> tuple[str, dict, dict, dict, str]:
-    """(module, manifest, results document, per-day file, note) of a verified run (module text);
-    the note is what `run_evidence` says after the name of a run read from an earlier commit, and
-    empty for a run at the checked-out commit."""
+def read_run(
+    run: Path, head: str, apart_from: str | None = None
+) -> tuple[str, dict, dict, dict, str, dict | None]:
+    """(module, manifest, results document, per-day file, note, apart) of a verified run (module
+    text); the note is what `run_evidence` says after the name of a run read from an earlier
+    commit, and empty for a run at the checked-out commit. `apart` is None, or, for a run
+    `read_evidence` refuses as from an earlier commit and `apart_from` lets through (`read_apart`),
+    the block `day-intervals.json` holds under `made_apart`."""
     present = [module for module, (name, _) in KINDS.items() if (run / name).is_file()]
     if len(present) != 1:
         raise CouldNotRun(
@@ -160,18 +207,81 @@ def read_run(run: Path, head: str) -> tuple[str, dict, dict, dict, str]:
         )
     module = present[0]
     results_name, losses_name = KINDS[module]
+    apart = None
     try:
         results = read_evidence(run, results_name, head)
         losses = read_evidence(run, losses_name, head)
     except CannotCheck as problem:
-        raise CouldNotRun(str(problem)) from problem
+        if apart_from is None:
+            raise CouldNotRun(str(problem)) from problem
+        apart = read_apart(run, head, apart_from, str(problem))
+        try:  # the files as `read_evidence` verifies a run at its own commit
+            results = read_evidence(run, results_name, apart_from)
+            losses = read_evidence(run, losses_name, apart_from)
+        except CannotCheck as again:
+            raise CouldNotRun(f"--apart-from: {again}") from again
     for found in (results, losses):
         if found.status != VERIFIED:
             raise CouldNotRun(f"{run.name} is not verified: it ended with exit code 1 or 2")
     command = results.manifest.get("command")
     if not isinstance(command, list) or module not in command:
         raise CouldNotRun(f"{run.name}'s recorded command does not run python -m {module}")
-    return module, results.manifest, results.data, losses.data, results.note
+    return module, results.manifest, results.data, losses.data, results.note, apart
+
+
+def read_apart(run: Path, head: str, apart_from: str, refused: str) -> dict:
+    """The `made_apart` block of a run read with `--apart-from`, or `CouldNotRun` naming the first
+    condition that fails (module text, reading I19). `refused`: why `read_evidence` refused the
+    run."""
+    try:
+        commit = json.loads((run / MANIFEST_NAME).read_text()).get("commit")
+    except (OSError, ValueError, AttributeError) as problem:
+        raise CouldNotRun(
+            f"--apart-from: {MANIFEST_NAME} of {run.name} cannot be read"
+        ) from problem
+    if commit != apart_from:
+        raise CouldNotRun(
+            f"--apart-from {apart_from[:12]} is not the commit the run was recorded at "
+            f"({str(commit)[:12]}); {refused}"
+        )
+    if _git(run, "cat-file", "-t", commit).stdout.strip() != b"commit":
+        raise CouldNotRun(f"--apart-from: {commit[:12]} is not a commit of the repository")
+    ancestor = _git(run, "merge-base", "--is-ancestor", commit, head).returncode
+    if ancestor == 1:
+        raise CouldNotRun(
+            f"--apart-from: the run's commit {commit[:12]} is not an ancestor of the checked-out "
+            f"commit {head[:12]}"
+        )
+    if ancestor != 0:
+        raise CouldNotRun("--apart-from: git cannot tell whether the run's commit is an ancestor")
+    done = _git(
+        run,
+        "diff",
+        "--name-only",
+        "-z",
+        "--no-renames",
+        "--no-relative",
+        "--ignore-submodules=none",
+        commit,
+        head,
+        "--",
+    )
+    if done.returncode != 0:
+        raise CouldNotRun("--apart-from: git cannot compare the two commits")
+    paths = [raw.decode("utf-8", "surrogateescape") for raw in done.stdout.split(b"\0") if raw]
+    for path in paths:
+        if path != THIS_MODULE and not _on_keep_list(path):
+            raise CouldNotRun(
+                f"--apart-from: {path} differs between the run's commit {commit[:12]} and the "
+                f"checked-out commit {head[:12]}; only {THIS_MODULE} and the keep-list of "
+                "run_evidence may differ"
+            )
+    return {
+        "run_commit": commit,
+        "this_commit": head,
+        "differing_paths": paths,
+        "note": APART_SENTENCE,
+    }
 
 
 def _close(a, b) -> bool:
@@ -201,10 +311,17 @@ def check_points(job: day_bootstrap.Job, rung: str, tier: str, points: dict) -> 
         if not _close(value, points[name]):
             problems.append(f"{name} recomputed {value!r}, the run's {points[name]!r}")
     for name in CEILINGS:
-        ceilings = job.ceilings[name][test]
-        value = None
-        if not any(math.isnan(c) for c in ceilings) and ceilings.sum() > 0:
-            value = float(sum(offers) / ceilings.sum())
+        # the run's own rule (`gate_calibrate._share`): no share when a ceiling is missing, below 0
+        # or the ceilings do not sum above 0; a null the rule makes agrees with the run's null
+        ceilings = [None if math.isnan(c) else float(c) for c in job.ceilings[name][test]]
+        for c in ceilings:
+            if c is not None and c < -ROUNDING_ALLOWANCE:
+                problems.append(
+                    f"a test day's {name} ceiling is {c!r}, below the rounding allowance "
+                    f"{-ROUNDING_ALLOWANCE!r}"
+                )
+        found = gate_calibrate._share(job.value[test], ceilings, beta)
+        value = None if found is None else found["ratio_of_sums"]
         if not _close(value, points["share_of_ceiling"][name]):
             problems.append(f"share of {name} recomputed {value!r}, the run's")
     losses = job.tests[rung][tier]
@@ -265,6 +382,10 @@ def job_intervals(
                 ),
                 **day_bootstrap.loss_intervals(job, rung, tier, found, test),
             }
+            shares = out[rung][tier]["share_of_ceiling"]
+            for name in CEILINGS:
+                if found["share_of_ceiling"][name] is None and "reason" not in shares[name]:
+                    shares[name] = {"point": None, "interval": None, "reason": NULL_SHARE_REASON}
     return out, drawn
 
 
@@ -359,7 +480,7 @@ def not_evaluated(job: day_bootstrap.Job, found: dict) -> list[str]:
     return out
 
 
-def compute(module, manifest, document, losses, run_name, seed, resamples, note=""):
+def compute(module, manifest, document, losses, run_name, seed, resamples, note="", apart=None):
     """The results document of the command and the problems of reading I11."""
     rungs = list(losses["rungs"])
     jobs = []
@@ -433,6 +554,8 @@ def compute(module, manifest, document, losses, run_name, seed, resamples, note=
         "pooled": {"definitions": pooled_definitions(), "configurations": blocks},
         "problems": problems,
     }
+    if apart is not None:
+        results["made_apart"] = apart
     if ROUTE_KEY in document:
         results[ROUTE_KEY] = copy.deepcopy(document[ROUTE_KEY])
     if abstained_units(document):
@@ -506,6 +629,13 @@ def _range(found: dict, digits=3) -> str:
 
 def summary_lines(results: dict) -> list[str]:
     lines = []
+    apart = results.get("made_apart")
+    if apart is not None:
+        lines.append(
+            f"{APART_SENTENCE.capitalize()}: the run was recorded at commit "
+            f"{apart['run_commit']}, this command ran at {apart['this_commit']}, paths differing: "
+            f"{', '.join(apart['differing_paths']) or 'none'}."
+        )
     if results["trial"] or results["partial"]:
         lines.append(f"{results['label']}: intervals of a run that is not a gate result.")
     for key, value in results["marks"].items():
@@ -676,6 +806,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--run", type=Path, required=True)
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--resamples", type=int, default=day_bootstrap.RESAMPLES)
+    parser.add_argument("--apart-from", default=None, metavar="COMMIT")
     args = parser.parse_args(argv)
     started = time.perf_counter()
     try:
@@ -683,10 +814,20 @@ def main(argv: list[str] | None = None) -> int:
             raise CouldNotRun("--seed must be a non-negative integer")
         if args.resamples < 1:
             raise CouldNotRun("--resamples must be at least 1")
-        found = read_run(args.run, head_commit(TOP))
-        module, manifest, document, losses, note = found
+        if args.apart_from is not None and not FULL_COMMIT.fullmatch(args.apart_from):
+            raise CouldNotRun("--apart-from must be a full commit id (40 or 64 hexadecimal digits)")
+        found = read_run(args.run, head_commit(TOP), args.apart_from)
+        module, manifest, document, losses, note, apart = found
         results, problems = compute(
-            module, manifest, document, losses, args.run.name, args.seed, args.resamples, note
+            module,
+            manifest,
+            document,
+            losses,
+            args.run.name,
+            args.seed,
+            args.resamples,
+            note,
+            apart,
         )
     except CouldNotRun as problem:
         print(f"COULD NOT RUN: {problem}")
